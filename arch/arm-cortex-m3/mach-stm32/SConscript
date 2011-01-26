@@ -1,0 +1,10 @@
+Import('env', 'config')
+
+SRCS = 'crt.c'
+
+if config.BOARD == 'stm32f103x4_mine':
+	SRCS += ' board_stm32f103x4_mine.c '
+
+obj = [ Object(i)  for i in Split(SRCS) ]
+
+Return('obj')

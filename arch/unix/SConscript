@@ -1,0 +1,10 @@
+Import('env', 'config')
+
+cfl = '-ffunction-sections -fno-builtin'
+env.Append(CFLAGS = cfl.split())
+
+SRCS = 'sched.c init.c'
+
+obj = [ Object(i)  for i in Split(SRCS) ]
+
+Return('obj')

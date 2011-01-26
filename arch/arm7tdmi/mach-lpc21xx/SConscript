@@ -1,0 +1,10 @@
+Import('env', 'config')
+
+SRCS = 'crt.c interrupt.c'
+
+if config.BOARD == 'itlpc2138':
+	SRCS += ' board_itlpc2138.c '
+
+obj = [ Object(i)  for i in Split(SRCS) ]
+
+Return('obj')

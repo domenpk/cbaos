@@ -1,0 +1,18 @@
+Import('env', 'config')
+
+LD_SCRIPT = 'arch/' + config.ARCH + '/mach-' + config.MACH + '/ld/' + config.CHIP + '.ld'
+cfl = '-mcpu=arm7tdmi -ffunction-sections -fno-builtin'
+ldf = '-mcpu=arm7tdmi -nostartfiles -Xlinker --gc-sections -Xlinker -M -Xlinker -Map='+config.NAME+'.map -T'+LD_SCRIPT
+
+env.Append(ASFLAGS = ['-mcpu=arm7tdmi'])
+env.Append(CFLAGS = cfl.split())
+env.Append(LINKFLAGS = ldf.split())
+
+
+SRCS = 'debug.c crt.c sched.c '
+SUBDIRS = 'mach-'+config.MACH
+
+obj = [ Object(i)  for i in Split(SRCS) ]
+obj.append(SConscript([ i+'/SConscript'  for i in Split(SUBDIRS) ]))
+
+Return('obj')

@@ -1,0 +1,11 @@
+Import('config')
+
+SRCS = []
+
+#if config.BOARD == 'itlpc2138':
+#	SRCS.append('hd44780.c')
+SRCS.append('hd44780.c')
+
+obj = [ Object(i)  for i in SRCS ]
+
+Return('obj')

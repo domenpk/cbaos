@@ -1,0 +1,16 @@
+Import('config')
+
+SRCS = 'is_it_working.c benchmark.c blinky.c semtest.c'
+
+SRCS += ' test_1w.c test_hd44780.c '
+SRCS = Split(SRCS)
+
+if 'BOARD' in dir(config):
+	if config.BOARD == 'itlpc2138' or config.BOARD == 'lpcxpresso':
+		SRCS.append('test_spi.c')
+		SRCS.append('test_i2c.c')
+
+
+obj = [ Object(i)  for i in SRCS ]
+
+Return('obj')

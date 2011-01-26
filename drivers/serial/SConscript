@@ -1,0 +1,16 @@
+Import('config')
+
+SRCS = []
+
+if config.ARCH == 'unix':
+	SRCS.append('unix_serial.c')
+
+if 'MACH' in dir(config):
+	if config.MACH == 'lpc11xx' or config.MACH == 'lpc13xx' or config.MACH == 'lpc21xx':
+		SRCS.append('lpc_serial.c')
+	if config.MACH == 'stm32':
+		SRCS.append('stm32_serial.c')
+
+obj = [ Object(i)  for i in SRCS ]
+
+Return('obj')

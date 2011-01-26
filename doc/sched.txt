@@ -1,0 +1,102 @@
+cbaos scheduler usage
+=====================
+
+Call
+	sched_init()
+
+then create tasks with
+	task_new(&task, task_func, arg, prio)
+
+task is the structure, that needs to have these filled:
+	task = (struct task) {
+		.name = "my name",
+		.stack = stack_space,
+		.stack_len = number_of_stack_words,
+	};
+
+task_func is a normal function, which is called with u32 arg.
+
+Task priority is prio, 0 is the highest priority, TASK_PRIORITY-1 is lowest.
+
+Tasks of same priority are preempted every TIME_SLICE miliseconds
+
+Tasks will only get scheduled when tasks with higher priority are sleeping or
+waiting on a semaphore, which should normally be the case. Tasks hogging the
+CPU are usually a sign of bad design.
+I don't avoid "priority inversion", I consider apps like that badly designed.
+
+
+When you have tasks setup call
+	sched_start();
+
+API
+Suspend task for >= msecs miliseconds.
+Returns the number of miliseconds remaining (currently always 0, since task
+can't be interrupted?)
+	u32 msleep(u32 msecs)
+
+Get current tick counter.
+	u32 ticks_now();
+
+Checks if timestamps in ticks are before/after another.
+	int time_before(u32 a, u32 b)
+	int time_after(u32 a, u32 b)
+
+Semaphores... TODO
+
+
+
+cbaos scheduler internals
+=========================
+
+Tasks are split into
+	struct list tasks_ready[TASK_PRIORITIES];
+	struct list tasks_waiting[TASK_PRIORITIES];
+	struct task cba;
+
+Tasks have TASK_PRIORITIES priorities, 0 being highest.
+
+Every task is either on one of task_ready lists, which means it'll get
+scheduled soon; or on task_waiting lists, which means it's waiting for a
+timeout (msleep) or on a semaphore.
+
+cba task is special, it's on neither of lists, and it only gets ran when
+there are no tasks on tasks_ready.
+It should use as little power as possible. It's also special in that it must
+not use msleep() or take semaphores (as sleeping is done in cba task).
+
+sched_start() first runs the cba task to free global stack, and then starts
+the tick timer.
+
+Tick timer is at first started for immediate wakeup, but later, only when
+needed with sched_next_wake().
+When tick is triggered, it calls sched_interrupt(), which in turn calls
+sched_run().
+
+Nah, text maybe isn't the best way, lets just list entry points
+
+
+sched_run()
+ |	Entered through tick interrupt, or sched_timeout().
+ |	Updates task lists, picks next task, switches to it.
+ |
+ |- sched_process_timeout(now) - some task finished mdelay()
+ |   |- move the tasks that finished the delay to start of their list
+ |
+ |- pick next task to run (and move it to the end of its list)
+ |- schedule next tick wakeup
+ |- switch to new task (if different)
+
+
+sched_timeout(u32 ticks)
+ |	Entered through msleep() and down().
+ |	Suspends a task for ticks ticks, or until an event happens
+ |
+ |- task_make_waiting(current)
+ |- update next wake up time
+ |- sched_run()
+
+
+task->dont_reschedulea
+	It seems this protects a task from being scheduled while in the middle
+	of acquiring a semaphore (prevents a race).

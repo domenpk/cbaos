@@ -1,0 +1,7 @@
+SRCS = 'cbashell.c command.c '
+
+obj = [ Object(i)  for i in Split(SRCS) ]
+
+nowarn = DefaultEnvironment().Clone()
+
+Return('obj')

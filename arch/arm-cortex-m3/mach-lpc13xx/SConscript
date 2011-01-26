@@ -1,0 +1,10 @@
+Import('env', 'config')
+
+SRCS = 'crt.c'
+
+if config.BOARD == 'lpcxpresso':
+	SRCS += ' board_lpcxpresso.c '
+
+obj = [ Object(i)  for i in Split(SRCS) ]
+
+Return('obj')

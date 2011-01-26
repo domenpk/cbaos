@@ -1,0 +1,24 @@
+Import('env', 'config')
+
+LD_SCRIPT = 'arch/' + config.ARCH + '/mach-' + config.MACH + '/ld/' + config.CHIP + '.ld'
+cfl = '-mcpu=cortex-m0 -march=armv6-m -mthumb -ffunction-sections -fno-builtin'
+ldf = '-mcpu=cortex-m0 -march=armv6-m -mthumb -nostartfiles -Xlinker --gc-sections -Xlinker -M -Xlinker -Map='+config.NAME+'.map -T'+LD_SCRIPT
+
+
+#env['CPPPATH'].append(['arch/'+config.ARCH+'/mach-'+config.MACH+'/include/'])
+# disable linking with libc, if nothing else, to see what uses libc
+if ARGUMENTS.get('LIBC') == '0':
+	ldf += ' -nodefaultlibs -nostdlib'
+
+env.Append(ASFLAGS = ['-mcpu=cortex-m0'])
+env.Append(CFLAGS = cfl.split())
+env.Append(LINKFLAGS = ldf.split())
+
+
+SRCS = 'crt.c debug.c sched.c interrupt.c'
+SUBDIRS = 'mach-'+config.MACH
+
+obj = [ Object(i)  for i in Split(SRCS) ]
+obj.append(SConscript([ i+'/SConscript'  for i in Split(SUBDIRS) ]))
+
+Return('obj')

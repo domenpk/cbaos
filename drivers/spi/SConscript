@@ -1,0 +1,16 @@
+Import('config')
+
+SRCS = ['spi.c']
+
+if 'MACH' in dir(config):
+	if config.MACH == 'lpc21xx':
+		SRCS.append('lpc21xx_spi.c')
+
+	if config.MACH == 'lpc21xx' or config.MACH == 'lpc13xx':
+		SRCS.append('lpc_ssp.c')
+
+SRCS += ['spi_tmp124.c']
+
+obj = [ Object(i)  for i in SRCS ]
+
+Return('obj')
