@@ -1,10 +1,9 @@
 Import('config')
 
-SRCS = []
-
-#if config.BOARD == 'itlpc2138':
-#	SRCS.append('hd44780.c')
-SRCS.append('hd44780.c')
+SRCS = [
+    'hd44780.c',
+    'debounce.c',
+    ]
 
 obj = [ Object(i)  for i in SRCS ]
 

@@ -20,7 +20,8 @@ enum vt100_key {
 	K_CTRL_H = 8,
 	K_BACKSPACE = 8,
 	K_CTRL_U = '\x15',
-	K_ENTER = '\r',
+	//K_ENTER = '\r',
+	K_ENTER = '\n',
 	K_ESCAPE = '\x1b',
 	K_BACKSPACE2 = '\x7f',
 

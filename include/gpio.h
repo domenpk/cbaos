@@ -10,8 +10,19 @@ enum gpio_mode {
 	GPIO_ANALOG = 0x30,
 };
 
+enum gpio_irq_edge {
+	GPIO_IRQ_DISABLED,
+	GPIO_IRQ_EDGE_RISING,
+	GPIO_IRQ_EDGE_FALLING,
+	GPIO_IRQ_EDGE_BOTH,
+};
+
+
 void gpio_init(int pin, enum gpio_mode mode, int value);
 void gpio_set(int pin, int value);
 int gpio_get(int pin);
+
+int gpio_irq_register(int pin, enum gpio_irq_edge edge, int (*handler)(int pin));
+void gpio_irq_debug(void);
 
 #endif

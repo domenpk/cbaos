@@ -5,6 +5,8 @@ SRCS = ['i2c.c']
 if 'MACH' in dir(config):
 	if config.MACH == 'lpc21xx' or config.MACH == 'lpc13xx':
 		SRCS.append('lpc_i2c.c')
+	if config.MACH == 'stm32':
+		SRCS.append('stm32_i2c.c')
 
 #SRCS += ['spi_tmp124.c']
 

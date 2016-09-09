@@ -1,6 +1,6 @@
 /*
- * CBA printf 20090711
- * Author: Domen Puncer <domen@cba.si>
+ * CBA printf 20151112
+ * Author: Domen Puncer Kugler <domen@cba.si>
  * License: WTFPL, see file LICENSE
  *
  * printf, sprintf, snprintf implementations
@@ -31,19 +31,20 @@
 
 /* "features"
  * - %.2s for NULL - what does std say?
+ * - %c for 0 in MODE=0 it prints nothing.
  */
-
-//#define TESTS
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <limits.h>
 #include <string.h>
-#include <ctype.h>
 
 //#define INT_MAX (0x7fffffff)
 
-#ifndef TESTS
+#define MODE 0
+#define SIZE 0
+
+#if 1
 #define _printf printf
 #define _fprintf fprintf
 #define _sprintf sprintf
@@ -60,6 +61,12 @@
 #endif
 #define PLEN (sizeof(pint)*4)
 
+
+/* this belongs elsewhere */
+static int isdigit(unsigned char c)
+{
+	return (c >= '0' && c <= '9');
+}
 
 static void printchar(char **str, int *len, int c)
 {
@@ -303,6 +310,9 @@ int __printf(char **str, int olen, const char *format, va_list va)
 			continue;
 		}
 
+ ignored_char:
+		c = *format++;
+
 		if (c == '\0')
 			break;
 		if (c == '%')
@@ -319,6 +329,10 @@ int __printf(char **str, int olen, const char *format, va_list va)
 		}
 		else {
 			int x;
+			if (strchr("iduoxXp", c) == NULL)
+				goto ignored_char;
+
+			/* needs to be used when evaluated */
 			x = (unsigned)va_arg(va, int);
 
 			if (c == 'i' || c == 'd') {
@@ -390,115 +404,3 @@ int _snprintf(char *str, size_t len, const char *format, ...)
 	*str = '\0';
 	return r;
 }
-
-#ifdef TESTS
-
-#define ALEN(x) (sizeof(x)/sizeof(x[0]))
-int tests[] = { 0, -1, 1, INT_MAX, INT_MIN, UINT_MAX, SCHAR_MAX, SCHAR_MIN, UCHAR_MAX, };
-char *formats[] = {
-		"%i", "%d", "%u", "%o", "%x", "%X",
-		"%3i", "%5d", "%12u", "%1o", "%4x", "%5X",
-		"%03i", "%05d", "%012u", "%01o", "%04x", "%05X",
-		"%#05o", "%#08x", "%#09X", "%#5o", "%#8x", "%#X",
-		"%-5i", "%-8d", "%#-8x", "%-#8o", "%-1X",
-		"%+5i", "% 5i", "% i",
-		"%hi", "%hhi", "%hu", "%hhx", "%ho",
-};
-
-char *stests[] = { NULL, "a long string", "", "test" };
-char *sformats[] = { "%s", "%10s", "%.8s", "%-8s", "%.s", "%.0s", };
-int ctests[] = { 'a', ' ', '+', };
-char *cformats[] = { "%3c", "%.3c", "%-3c", "%c", };
-
-void run_tests(long *tests, int ntests, char **formats, int nformats)
-{
-	int i, j;
-	for (j=0; j<nformats; j++) {
-		printf(" test %s: .", formats[j]);
-		for (i=0; i<ntests; i++) 
-			printf(formats[j], tests[i]), printf(". .");
-		printf("\n");
-
-		_printf("_test %s: .", formats[j]);
-		for (i=0; i<ntests; i++)
-			_printf(formats[j], tests[i]), printf(". .");
-		printf("\n");
-	}
-}
-
-void run_tests_l()
-{
-	int i, j;
-	char *formats[] = { "%li", "%lu" };
-	long tests[] = { LONG_MAX, 0L, LONG_MIN, -1L, };
-	int nformats = ALEN(formats);
-	int ntests = ALEN(tests);
-
-	for (j=0; j<nformats; j++) {
-		printf(" test %s: .", formats[j]);
-		for (i=0; i<ntests; i++) 
-			printf(formats[j], tests[i]), printf(". .");
-		printf("\n");
-
-		_printf("_test %s: .", formats[j]);
-		for (i=0; i<ntests; i++)
-			_printf(formats[j], tests[i]), printf(". .");
-		printf("\n");
-	}
-}
-void run_tests_ll()
-{
-	int i, j;
-	char *formats[] = { "%lli", "%llu" };
-	long long tests[] = { LLONG_MAX, 0LL, LLONG_MIN, -1LL, };
-	int nformats = ALEN(formats);
-	int ntests = ALEN(tests);
-
-	for (j=0; j<nformats; j++) {
-		printf(" test %s: .", formats[j]);
-		for (i=0; i<ntests; i++) 
-			printf(formats[j], tests[i]), printf(". .");
-		printf("\n");
-
-		_printf("_test %s: .", formats[j]);
-		for (i=0; i<ntests; i++)
-			_printf(formats[j], tests[i]), printf(". .");
-		printf("\n");
-	}
-}
-
-void run_stests(long *tests, int ntests, char **formats, int nformats)
-{
-	char test1[64], test2[64];
-	int i, j;
-	for (j=0; j<nformats; j++) {
-		for (i=0; i<ntests; i++) {
-			int l1, l2;
-//			l1 = sprintf(test1, formats[j], tests[i]);
-//			l2 = _sprintf(test2, formats[j], tests[i]);
-			l1 = snprintf(test1, 6, formats[j], tests[i]);
-			l2 = _snprintf(test2, 6, formats[j], tests[i]);
-			if (l1 != l2)
-				printf("%s:%i, %i != _%i\n", formats[j], i, l1, l2);
-			if (strcmp(test1, test2) != 0)
-				printf("%s:%i, %s != _%s\n", formats[j], i,
-						test1, test2);
-		}
-	}
-}
-
-int main()
-{
-	/*
-	run_tests((long*)stests, ALEN(stests), sformats, ALEN(sformats));
-	run_tests((long*)tests, ALEN(tests), formats, ALEN(formats));
-	run_tests((long*)ctests, ALEN(ctests), cformats, ALEN(cformats));
-	run_tests_l();
-	run_tests_ll();
-	*/
-	run_stests((long*)stests, ALEN(stests), sformats, ALEN(sformats));
-	run_stests((long*)tests, ALEN(tests), formats, ALEN(formats));
-	run_stests((long*)ctests, ALEN(ctests), cformats, ALEN(cformats));
-	return 0;
-}
-#endif

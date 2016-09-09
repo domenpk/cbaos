@@ -7,13 +7,14 @@
 
 #include <types.h>
 #include <drivers/stm32_serial.h>
+#include <mach/stm32_regs.h>
 
 /* supported chips:
  * stm32f103
  */
 
 
-static int uart_direct_putchar(struct stm32_uart *uart, int c)
+static int uart_direct_putchar(struct stm32_usart_regs *uart, int c)
 {
 	while (!(uart->SR & 1<<7 /* TXE */))
 		;
@@ -22,7 +23,7 @@ static int uart_direct_putchar(struct stm32_uart *uart, int c)
 	return 0;
 }
 
-static int uart_direct_getchar(struct stm32_uart *uart)
+static int uart_direct_getchar(struct stm32_usart_regs *uart)
 {
 	if (!(uart->SR & 1<<5 /* RXNE */))
 		return -EAGAIN;
@@ -35,7 +36,7 @@ static int uart_simple_probe(struct device *dev, void *data)
 {
 	struct stm32_uart_data *uart_data = data;
 	const int BR = uart_data->baudrate;
-	struct stm32_uart *uart = uart_data->base;
+	struct stm32_usart_regs *uart = uart_data->base;
 
 	if (!data)
 		return -EINVAL;

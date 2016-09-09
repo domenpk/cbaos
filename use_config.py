@@ -3,7 +3,10 @@
 import sys, os
 
 if len(sys.argv) <= 1:
-	sys.exit("need an argument, config file name")
+    print("need an argument, config file name:")
+    for f in os.listdir('configs/'):
+        print("configs/%s" % f)
+    sys.exit()
 
 # import config file
 #execfile(sys.argv[1])

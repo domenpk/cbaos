@@ -8,7 +8,10 @@ SRCS = Split(SRCS)
 if 'BOARD' in dir(config):
 	if config.BOARD == 'itlpc2138' or config.BOARD == 'lpcxpresso':
 		SRCS.append('test_spi.c')
+	if config.BOARD == 'itlpc2138' or config.BOARD == 'lpcxpresso' or config.BOARD == 'stm32f103x4_mine':
 		SRCS.append('test_i2c.c')
+	if config.BOARD == 'lpcxpresso':
+		SRCS.append('test_serial.c')
 
 
 obj = [ Object(i)  for i in SRCS ]

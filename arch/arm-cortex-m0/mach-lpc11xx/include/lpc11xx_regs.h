@@ -4,6 +4,22 @@
 /* include what comes with CMSIS */
 #include <mach/LPC11xx.h>
 
+#define SYSPLLCLKSEL_IRC 0
+#define SYSPLLCLKSEL_SYSTEM 1
+#define SYSPLLCLKSEL_WDT 2
+
+#define MAINCLKSEL_IRC 0
+#define MAINCLKSEL_PLLIN 1
+#define MAINCLKSEL_WDT 2
+#define MAINCLKSEL_PLL 3
+
+#define PDRUNCFG_IRCOUT_PD (1<<0)
+#define PDRUNCFG_IRC_PD (1<<1)
+#define PDRUNCFG_SYSPLL_PD (1<<7)
+
+#define FLASHCFG *((volatile unsigned int *)0x4003c010)
+
+
 #define SYSAHBCLKCTRL_SYS        (1<<0)
 #define SYSAHBCLKCTRL_ROM        (1<<1)
 #define SYSAHBCLKCTRL_RAM        (1<<2)

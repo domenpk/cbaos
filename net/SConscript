@@ -1,0 +1,15 @@
+SRCS = [
+    'ethernet.c',
+    'arp.c',
+    'ip.c',
+    'udp.c',
+    'dhcp.c',
+    'netpacket.c',
+    'netpacket2.c', # XXX delete me
+    ]
+
+obj = [ Object(i)  for i in SRCS ]
+
+nowarn = DefaultEnvironment().Clone()
+
+Return('obj')

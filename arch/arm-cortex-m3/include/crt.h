@@ -3,7 +3,7 @@
 
 #include <compiler.h>
 
-extern void _ram_end;
+extern unsigned long _ram_end;
 
 void __naked reset_handler();
 void __naked unknown_handler();

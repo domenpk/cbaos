@@ -10,6 +10,70 @@
 #endif
 
 
+// for spi
+#include <drivers/spi.h>
+#include <drivers/spi_tmp124.h>
+
+#ifdef BOARD_LPCXPRESSO
+#include <mach/lpc13xx_gpio.h>
+#include <mach/board_lpcxpresso.h>
+#define GPIO_CS0 GPIO_2_10
+#define COMMAND_SPI
+#endif
+
+
+#ifdef COMMAND_SPI
+static int command_spi(const char *_cmd)
+{
+	char *cmd = (char*)_cmd; /* we don't change it, but strtol is idiotic */
+	static struct spi_device dev = {
+		.mode = 0,
+		.cs_pin = GPIO_CS0,
+		.clock = 10*1000*1000, /* 10 MHz max */
+	};
+	static u8 buf[128];
+
+	if (strncmp(cmd, "spi ", 4) != 0)
+		return 0;
+
+	cmd += 4;
+
+	if (strncmp(cmd, "init", 4) == 0) {
+		// TODO hardcoded - how to configure gpio easily? same problem will be with command_gpio
+		spi_register_device(&spi0, &dev);
+	}
+
+	if (strncmp(cmd, "data ", 5) == 0) {
+		struct spi_transfer transfer;
+		int len;
+		int idx = 0;
+
+		cmd += 5;
+		transfer.tx_buf = buf;
+		transfer.rx_buf = buf;
+		len = strtoul(cmd, &cmd, 0);
+		transfer.len = len;
+
+		while (cmd && idx < len) {
+			u8 data = strtoul(cmd, &cmd, 0);
+			buf[idx++] = data;
+		}
+		/* pad the rest with 0xff */
+		while (idx < len)
+			buf[idx++] = 0xff;
+
+		spi_transfer(&dev, &transfer);
+
+		printf("spi data:");
+		for (idx = 0; idx < len; idx++)
+			printf(" %02x", buf[idx]);
+		printf("\n");
+	}
+
+	return 1;
+}
+#endif
+
 static int command_x(const char *_cmd)
 {
 	static int len = 1;
@@ -161,6 +225,9 @@ int (* const command_list[])(const char *cmd) = {
 	command_x,
 	command_boot,
 	command_fail,
+#ifdef COMMAND_SPI
+	command_spi,
+#endif
 	command_test,
 	command_help,
 	command_invalid,

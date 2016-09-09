@@ -21,4 +21,6 @@ static inline u32 ticks2ms(u32 ticks)
 	return (ticks+999) / 1000;
 }
 
+#define MSEC_IN_TICKSOVF ((u32)((0x100000000LL + 1000-1) / (1000)))
+
 #endif

@@ -23,6 +23,7 @@ int fopen(FILE *fd, const char *path, int flags)
 		if (!dev)
 			return -ENODEV;
 		fd->dev = dev;
+		dev->flags = flags;
 		return dev->drv->open(dev, flags);
 	}
 	return -EINVAL;
@@ -39,9 +40,32 @@ int fwrite(FILE *fd, const void *buf, size_t count)
 	return fd->dev->drv->write(fd->dev, buf, count);
 }
 
+int fwriteall(FILE *fd, const void *buf, size_t count)
+{
+	int r;
+	int size = count;
+
+	do {
+		r = fd->dev->drv->write(fd->dev, buf, count);
+		if (r <= 0)
+			return r;
+		count -= r;
+		buf += r;
+	} while (count > 0);
+
+	return size;
+}
+
 int fread(FILE *fd, void *buf, size_t count)
 {
 	return fd->dev->drv->read(fd->dev, buf, count);
+}
+
+int ioctl(FILE *fd, enum ioctl cmd, int arg)
+{
+	if (fd->dev->drv->ioctl)
+		return fd->dev->drv->ioctl(fd->dev, cmd, arg);
+	return -ENOSYS;
 }
 
 int fputc(int c, FILE *f)
@@ -69,4 +93,24 @@ int getchar(void)
 	return fgetc(stdin);
 }
 
-// TODO fgets
+char *fgets(char *s, int size, FILE *f)
+{
+	int pos = 0;
+	if (size <= 0)
+		return NULL;
+
+	while (pos < size-1) {
+		int r = fread(f, &s[pos], 1);
+
+		/* EOF */
+		if (r == 0)
+			break;
+		if (r < 0)
+			continue;
+
+		if (s[pos++] == '\n')
+			break;
+	}
+	s[pos] = '\0';
+	return s;
+}

@@ -25,16 +25,35 @@ struct task {
 };
 extern struct task *current;
 
+#define TASK_DECLARE_INIT(_name, _stackl)       \
+	static u32 _name##_stack[_stackl];      \
+	static struct task _name = {            \
+		.name = #_name,                 \
+		.stack = _name##_stack,         \
+		.stack_len = _stackl,           \
+	};
+
 static inline int time_before(u32 a, u32 b)
 {
 	return (s32)(a - b) < 0;
 	//return a - b >= 0x80000000;
 }
 
+/* a happened after b; a > b */
 static inline int time_after(u32 a, u32 b)
 {
-	return (s32)(b - a) < 0;
+	return (s32)(a - b) > 0;
 	//return b - a >= 0x80000000;
+}
+
+static inline int time_before_eq(u32 a, u32 b)
+{
+	return !time_after(a, b);
+}
+
+static inline int time_after_eq(u32 a, u32 b)
+{
+	return !time_before(a, b);
 }
 
 u32 msleep(u32 msecs);

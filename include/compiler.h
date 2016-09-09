@@ -1,12 +1,33 @@
 #ifndef _COMPILER_H_
 #define _COMPILER_H_
 
+#include <helpers.h>
+
 /* only gcc stuff for now */
 #define __alias(f)	__attribute__((weak, alias (#f)))
-#define __naked		__attribute__((naked))
-#define __interrupt	__attribute__((interrupt))
-#define __noreturn	__attribute__((noreturn))
 
-#define ALEN(x) (sizeof(x)/sizeof((x)[0]))
+#ifndef __naked
+#define __naked		__attribute__((naked))
+#endif
+
+#ifndef __interrupt
+#define __interrupt	__attribute__((interrupt))
+#endif
+
+#ifndef __noreturn
+#define __noreturn	__attribute__((noreturn))
+#endif
+
+#ifndef __unused
+#define __unused	__attribute__((unused))
+#endif
+
+#ifndef __inline
+#define __inline	__attribute__((always_inline))
+#endif
+
+#ifndef __packed
+#define __packed	__attribute__((packed))
+#endif
 
 #endif

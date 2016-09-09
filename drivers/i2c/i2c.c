@@ -10,15 +10,19 @@ void i2c_state_machine(struct i2c_master *master, int state)
 {
 	struct i2c_transfer *tr = master->current_transfer;
 
+	if (master->xfer_error)
+		return;
+
 //	printf("%s, state:%x\n", __func__, state);
 	switch (state) {
 	case 0x08: /* start condition has been transmitted */
-	case 0x10: /* repeadet start has been transmitted */
+	case 0x10: /* repeated start has been transmitted */
 		master->write(master, tr->addr);
 		master->pos = 0;
 		break;
 	case 0x20: /* sla+w has been transmitted, not ack has been received */
 	case 0x30: /* data has been transmitted, not ack has been received */
+	case 0x48: /* sla+r has been transmitted, not ack has been received */
 //		printf("%s, nack received while writing\n", __func__);
 		master->xfer_error = -EINVAL;
 		goto end_transfer;
@@ -33,11 +37,6 @@ void i2c_state_machine(struct i2c_master *master, int state)
 	case 0x38: /* artibration lost while sending sla+r/w or data bytes */
 		printf("%s, arbitration lost\n", __func__);
 		master->xfer_error = -ENXIO;
-		goto end_transfer;
-		break;
-	case 0x48: /* sla+r has been transmitted, not ack has been received */
-//		printf("%s, nack received while sla+r\n", __func__);
-		master->xfer_error = -EINVAL;
 		goto end_transfer;
 		break;
 
@@ -60,7 +59,6 @@ void i2c_state_machine(struct i2c_master *master, int state)
 		master->current_transfer++;
 		master->restart(master);
 	} else {
-		master->xfer_error = 0;
 		goto end_transfer;
 	}
 	return;
@@ -83,10 +81,12 @@ int i2c_xfer(struct i2c_master *master, struct i2c_transfer *transfer, int num_x
 	master->transfers_to_go = num_xfers;
 
 	/* XXX this shouldn't be needed, but 1w bridge at 0x1b seems to cause 0x1c_w to timeout */
+	/* i think this happens because with 0x1b_r, ds2482 sends another byte, which gets received, while stop is getting sent - scanning w/o receiving at least 1 byte and then sending nack is invalid */
 	master->init(master);
 
 	master->start(master);
 
+	master->xfer_error = 0;
 	if (down(&master->xfer_sem, ms2ticks(1000)) < 0) {
 		printf("%s, timeouted, hw error?\n", __func__);
 		master->init(master);

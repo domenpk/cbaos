@@ -1,8 +1,6 @@
 /* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #include "arch/crt.h"
 
-extern void _ram_end;
-
 void __naked reset_handler()
 {
 	/* cortex-m3 trm 2.2.1 main stack and process stack */
@@ -14,9 +12,12 @@ void __naked reset_handler()
 			"msr	CONTROL, r0\n\t"
 			"isb\n\t"
 
+			/* lr at this point is 0x1fff12c7, in case you want to do whatever :) */
+
 			/* hrm... this stack is ignored laters anyways, as the scheduler starts,
 			 * so it could just be the same as for exceptions, yes? */
-			"ldr	sp, =_ram_end-1024\n\t" /* 1k for main stack */
+			"ldr	sp, =_ram_end-256\n\t" /* 256 for main stack */
+			//"ldr	sp, =_ram_end-1024\n\t" /* 1k for main stack */
 
 			"bl	init\n\t"
 			"bl	main\n\t"

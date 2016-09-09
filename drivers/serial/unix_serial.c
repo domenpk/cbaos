@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <driver.h>
 
-static int uart_probe(struct device *dev, int data)
+static int uart_probe(struct device *dev, void *data)
 {
 	return 0;
 }

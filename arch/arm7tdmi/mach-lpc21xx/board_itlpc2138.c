@@ -80,6 +80,7 @@ void tty0_init()
 	static struct lpc_uart_data uart_data;
 	u32 tmp;
 
+#if 0
 	PCONP |= PCONP_UART1;
 	tmp = PINSEL0;
 	tmp &= ~(3<<8*2);
@@ -89,6 +90,17 @@ void tty0_init()
 	PINSEL0 = tmp;
 
 	uart_data.base = (void*)LPC21XX_UART1;
+#else
+	PCONP |= PCONP_UART0;
+	tmp = PINSEL0;
+	tmp &= ~(3<<0*2);
+	tmp &= ~(3<<1*2);
+	tmp |= 1<<0*2; /* P0.8 is now TXD1 */
+	tmp |= 1<<1*2; /* P0.9 is now RXD1 */
+	PINSEL0 = tmp;
+
+	uart_data.base = (void*)LPC21XX_UART0;
+#endif
 	uart_data.flags = 0;
 	uart_data.pclk = clock_pclk;
 	uart_data.baudrate = 115200;

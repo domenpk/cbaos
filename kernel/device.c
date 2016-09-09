@@ -4,7 +4,7 @@
 
 #include <device.h>
 
-static DEFINE_LIST(device_list);
+static LIST_DECLARE_INIT(device_list);
 
 int device_register(struct device *dev)
 {

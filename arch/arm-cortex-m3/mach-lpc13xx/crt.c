@@ -44,7 +44,7 @@ void __naked dummy_handler()
 __attribute__ ((section(".vectors"))) void (* const _vectors[])() =
 {
 	/* exceptions, arch specific */
-	&_ram_end,              /* stack */
+	(void*)&_ram_end,              /* stack */
 	reset_handler,
 	nmi_handler,
 	hardfault_handler,
@@ -106,7 +106,7 @@ __attribute__ ((section(".vectors"))) void (* const _vectors[])() =
 	wakeup_irqhandler,	/* P3_2 */
 	wakeup_irqhandler,	/* P3_3 */
 
-	i2c_irqhandler,         /* 40 */
+	i2c_irqhandler,         /* 40, 0xa0 (0xe0 absolute)*/
 	timer16_0_irqhandler,
 	timer16_1_irqhandler,
 	timer32_0_irqhandler,
@@ -118,12 +118,12 @@ __attribute__ ((section(".vectors"))) void (* const _vectors[])() =
 	usb_fiqhandler,
 
 	adc_irqhandler,
-	wdt_irqhandler,         /* 50 */
+	wdt_irqhandler,         /* 50, 0xc8 (0x108 absolute) */
 	bod_irqhandler,
 	fmc_irqhandler,
 
 	pioint3_irqhandler,
 	pioint2_irqhandler,
 	pioint1_irqhandler,
-	pioint0_irqhandler,     /* 56 */
+	pioint0_irqhandler,     /* 56, 0xe0 (0x120 absolute) */
 };

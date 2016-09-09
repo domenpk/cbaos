@@ -8,7 +8,10 @@
 /* if you have an apparent problem with lists, check you didn't add the same
  * member twice */
 
-#define DEFINE_LIST(name)	\
+/* list initialization helpers */
+#define LIST_INIT(name) { .next = &(name), .prev = &(name) }
+
+#define LIST_DECLARE_INIT(name)	\
 	struct list name = {	\
 		.next = &name,	\
 		.prev = &name,	\

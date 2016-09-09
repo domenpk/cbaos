@@ -1,0 +1,5 @@
+SRCS = [ 'main.c' ]
+
+obj = [ Object(i)  for i in SRCS ]
+
+Return('obj')

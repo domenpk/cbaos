@@ -5,11 +5,18 @@
 import os
 import config
 
-SRCS = 'main.c'
+SRCS=''
+if not 'APPLICATION' in dir(config):
+	SRCS = 'main.c'
 
-SUBDIRS = 'arch/'+config.ARCH+' kernel lib cbashell test drivers'
-if os.path.exists('../cbaos.extra'):
-	SUBDIRS += ' ../cbaos.extra '
+SUBDIRS = 'arch/'+config.ARCH+' kernel lib cbashell drivers net'
+if not 'APPLICATION' in dir(config):
+        SUBDIRS += ' test'
+
+#if os.path.exists('../cbaos.extra'):
+#	SUBDIRS += ' ../cbaos.extra '
+if 'APPLICATION' in dir(config):
+	SUBDIRS += ' applications/'+config.APPLICATION+' '
 
 #env = DefaultEnvironment(ENV = {'PATH' : os.environ['PATH']})
 env = DefaultEnvironment(ENV = os.environ)
@@ -29,7 +36,7 @@ if 'CROSSCOMPILE' in dir(config):
 	env['LINK'] = config.CROSSCOMPILE+'-gcc'
 	env['OBJCOPY'] = config.CROSSCOMPILE+'-objcopy'
 
-env['CFLAGS'] = ['-Wall', '-Os', '-g']
+env['CFLAGS'] = ['-Wall', '-Os', '-g', '-Wno-char-subscripts']
 
 # import variables from config as defines, ie. ARCH_ARM_CORTEX_M3
 for i in dir(config):
@@ -48,7 +55,8 @@ for i in dir(config):
 if env.has_key('OBJCOPY'):
 	objcopy_bldr = Builder(action = env['OBJCOPY']+' $OCFLAGS $SOURCE $TARGET')
 	env.Append(BUILDERS = {'ObjCopy':objcopy_bldr}) 
-env.Append(BUILDERS = {'Size':Builder(action = 'size $SOURCE') })
+#env.Append(BUILDERS = {'Size':Builder(action = 'size $SOURCE') })
+env.Append(BUILDERS = {'Size':Builder(action = 'echo \'read a b c d_ <<< $$(size $SOURCE | tail -1); echo "FLASH: $$(($$a+$$b)); RAM: $$(($$b+$$c))"\' | bash') })
 
 
 # allow environment variables to work around these

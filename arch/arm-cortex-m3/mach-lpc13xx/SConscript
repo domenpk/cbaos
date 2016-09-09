@@ -1,9 +1,12 @@
 Import('env', 'config')
 
-SRCS = 'crt.c'
+SRCS = 'crt.c lpc13xx_iap.c '
 
 if config.BOARD == 'lpcxpresso':
 	SRCS += ' board_lpcxpresso.c '
+
+if config.BOARD == 'cba_lights_0_2':
+	SRCS += ' board_cba_lights_0_2.c '
 
 obj = [ Object(i)  for i in Split(SRCS) ]
 

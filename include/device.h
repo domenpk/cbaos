@@ -8,6 +8,7 @@ struct device {
 	struct list list;
 	const char *name;
 	struct driver *drv;
+	int flags;
 	void *priv; /* private data for device */
 };
 

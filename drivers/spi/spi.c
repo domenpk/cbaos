@@ -28,6 +28,13 @@ int spi_transfer_async(struct spi_device *device, struct spi_transfer *msg)
 
 int spi_transfer(struct spi_device *device, struct spi_transfer *msg)
 {
+#if 0 // DEBUG
+	int i;
+	printf("%s", __func__);
+	for (i=0; i<msg->len; i++)
+		printf(" %02x", msg->tx_buf[i]);
+	printf("\n");
+#endif
 	if (spi_transfer_async(device, msg) < 0)
 		return -EFAULT;
 

@@ -14,6 +14,7 @@ struct circ_buf {
 
 void circ_buf_init(struct circ_buf *cb, u8 *buf, unsigned size);
 unsigned circ_buf_len(struct circ_buf *cb);
+unsigned circ_buf_free(struct circ_buf *cb);
 
 /* returns number of characters succesfully written */
 unsigned circ_buf_put(struct circ_buf *cb, const u8 *data, unsigned len);

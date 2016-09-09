@@ -1,0 +1,7 @@
+Import('config')
+
+SRCS = ['enc28j60.c']
+
+obj = [ Object(i)  for i in SRCS ]
+
+Return('obj')

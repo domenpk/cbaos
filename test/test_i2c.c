@@ -7,6 +7,9 @@
 
 #elif defined BOARD_ITLPC2138
 #include <mach/board_itlpc2138.h>
+
+#elif defined BOARD_STM32F103X4_MINE
+#include <mach/board_stm32f103x4_mine.h>
 #endif
 
 
@@ -16,9 +19,12 @@ void test_i2c_func(u32 arg)
 
 	/* i2c scanning */
 	for (i=0; i<0x7f; i++) {
+		//u8 tmp;
 		if (i2c_write(&i2c0, i, NULL, 0) == 0)
 			printf("%s, i2c0: %x_w present\n", __func__, i);
-		if (i2c_read(&i2c0, i, NULL, 0) == 0)
+		/* must read one byte with read scanning, only then can master NACK and STOP */
+		//if (i2c_read(&i2c0, i, &tmp, 1) == 0)
+		if (i2c_read(&i2c0, i, NULL, 0) == 0) // XXX for now, till lpc i2c driver is fixed
 			printf("%s, i2c0: %x_r present\n", __func__, i);
 	}
 

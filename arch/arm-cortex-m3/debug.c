@@ -2,11 +2,11 @@
 #include <types.h>
 #include <stdio.h>
 #include <compiler.h>
-#include <arch/cm3_regs.h>
+//#include <arch/cm3_regs.h>
 #include <cbashell.h>
 
-extern void _ram_start;
-extern void _ram_end;
+extern unsigned long _ram_start;
+extern unsigned long _ram_end;
 
 static const char * const exceptions[] = {
 	"Unknown",
@@ -26,10 +26,53 @@ static const char * const regnames[16] = { "r0", "r1", "r2", "r3", "r4", "r5", "
  * note: on IMPRECISERR, this doesn't help much. it just means that some
  * invalid access occured but possibly before (after/prediction?) PC
  */
+#ifdef MACH_LPC13XX
+#include <device.h>
+#include <mach/lpc13xx_regs.h>
+#include <drivers/lpc_serial_proper.h>
+#endif
+#define HFSR    *((volatile u32 *)0xe000ed2c)
+#define MMAR    *((volatile u32 *)0xe000ed34)
+#define BFAR    *((volatile u32 *)0xe000ed38)
 void generic_exception_handler_c(u32 *oldstack, u32 *newstack, unsigned exception)
 {
 	int oldstack_valid = (oldstack >= (u32*)&_ram_start && oldstack < (u32*)&_ram_end);
 	int i;
+
+#ifdef MACH_LPC13XX
+	asm volatile ("cpsid i\n");
+	static struct device tty0;
+	static struct lpc_uart_data uart_data;	
+
+	LPC_SYSCON->SYSAHBCLKCTRL |= SYSAHBCLKCTRL_IOCON;
+	LPC_IOCON->PIO1_6 = 1; /* uart RXD */
+	LPC_IOCON->PIO1_7 = 1; /* uart TXD */
+
+	LPC_SYSCON->SYSAHBCLKCTRL &= ~SYSAHBCLKCTRL_UART;
+	LPC_SYSCON->SYSAHBCLKCTRL |= SYSAHBCLKCTRL_UART;
+	LPC_SYSCON->UARTCLKDIV = 1; /* main clock / 1 */
+
+	uart_data.base = (void*)LPC_UART_BASE;
+	uart_data.flags = LPC_UART_FDR;
+	uart_data.pclk = CONFIG_FCPU;
+	uart_data.baudrate = 115200;
+
+	tty0.name = "tty0";
+	tty0.drv = &serial_driver;
+	if (tty0.drv->probe(&tty0, &uart_data) == 0)
+		device_register(&tty0);
+
+
+	static FILE _stdout;
+	int r = fopen(&_stdout, "/dev/tty0", O_NONBLOCK);
+	if (r != 0) {
+		/* no console */
+		fopen(&_stdout, "/dev/null", O_NONBLOCK);
+	}
+	stdin = &_stdout;
+	stdout = &_stdout;
+	stderr = &_stdout;
+#endif
 
 	if (exception < ALEN(exceptions))
 		printf("%s was called, dumping regs:\n", exceptions[exception]);
@@ -49,7 +92,7 @@ void generic_exception_handler_c(u32 *oldstack, u32 *newstack, unsigned exceptio
 
 	if (oldstack_valid) {
 		printf("r12/ip\t0x%08x\t%i\n", oldstack[4], oldstack[4]);
-		printf("sp\t%p\n", oldstack);
+		printf("sp\t%p (newstack:%p)\n", oldstack, newstack);
 		printf("lr\t0x%08x\n", oldstack[5]);
 		printf("pc\t0x%08x\n", oldstack[6]);
 		printf("xPSR\t0x%08x\n", oldstack[7]);
@@ -61,7 +104,10 @@ void generic_exception_handler_c(u32 *oldstack, u32 *newstack, unsigned exceptio
 	if (BFAR != 0xe000ed38)
 		printf("BFAR\t0x%08x\n", BFAR);
 
+	task_printall();
+
 	printf("\nentering cbashell\n");
+#if 0
 	cbashell_init();
 	while (1) {
 		int c;
@@ -69,4 +115,5 @@ void generic_exception_handler_c(u32 *oldstack, u32 *newstack, unsigned exceptio
 		if (c >= 0)
 			cbashell_charraw(c);
 	}
+#endif
 }

@@ -2,6 +2,7 @@
 #define _STDIO_H_
 
 #include <stddef.h>
+#include <ioctl.h>
 
 #define EOF (-1)
 
@@ -19,7 +20,9 @@ extern FILE *stdin, *stdout, *stderr;
 int fopen(FILE *fd, const char *path, int flags);
 void fclose(FILE *fd);
 int fwrite(FILE *fd, const void *buf, size_t count);
+int fwriteall(FILE *fd, const void *buf, size_t count);
 int fread(FILE *fd, void *buf, size_t count);
+int ioctl(FILE *fd, enum ioctl cmd, int arg);
 
 
 int printf(const char *format, ...) __attribute__ ((format (printf, 1, 2)));
@@ -38,5 +41,6 @@ int puts(const char *s);
 
 int fgetc(FILE *f);
 int getchar(void);
+char *fgets(char *s, int size, FILE *f);
 
 #endif

@@ -7,23 +7,6 @@
 
 // XXX spi and i2c code - just use the lpc13xx stuff
 
-// XXX -> some .h
-#define SYSPLLCLKSEL_IRC 0
-#define SYSPLLCLKSEL_SYSTEM 1
-#define SYSPLLCLKSEL_WDT 2
-
-#define MAINCLKSEL_IRC 0
-#define MAINCLKSEL_PLLIN 1
-#define MAINCLKSEL_WDT 2
-#define MAINCLKSEL_PLL 3
-
-#define PDRUNCFG_IRCOUT_PD (1<<0)
-#define PDRUNCFG_IRC_PD (1<<1)
-#define PDRUNCFG_SYSPLL_PD (1<<7)
-
-#define FLASHCFG *((volatile unsigned int *)0x4003c010)
-
-
 void tty0_init()
 {
 	static struct device tty0;

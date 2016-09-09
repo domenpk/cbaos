@@ -2,6 +2,7 @@
 #define _DRIVER_H_
 
 #include <stddef.h>
+#include <ioctl.h>
 
 struct device;
 struct driver {
@@ -11,6 +12,7 @@ struct driver {
 	void (*close)(struct device *);
 	int (*read)(struct device *, void *, size_t);
 	int (*write)(struct device *, const void *, size_t);
+	int (*ioctl)(struct device *, enum ioctl, int arg);
 };
 
 #endif

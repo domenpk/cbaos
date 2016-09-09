@@ -66,35 +66,68 @@ void __interrupt ssp_irqhandler()
 
 	irq_ack(data->irq);
 
+	/* tx and rx need to be handled in the same loop (otherwise with
+	 * fast clock tx would starve rx */
+	while (rxpos < len) {
+		u8 stat = spi->SSPSR;
+		if (stat & 1<<2 /* RNE */) {
+			transfer->rx_buf[rxpos++] = spi->SSPDR;
+		}
+		else if ((stat & 1<<2) /* RNE */ == 0) {
+			/* note the double RNE check is intentional */
+			break;
+		}
+	}
+	// I don't like this, but at least it works reliably
+	if ((spi->SSPSR & 1<<1 /* TNF */) && txpos < len) {
+		spi->SSPDR = transfer->tx_buf[txpos++];
+	}
+#if 0
 	//printf("%s, ris:%x, sr:%x\n", __func__, spi->SSPRIS, spi->SSPSR);
 	/* there's space in tx fifo, so send */
 	while (txpos < len && (spi->SSPSR & 1<<1 /* TNF */)) {
 		//printf("spi, tx[%i]\n", txpos);
 		spi->SSPDR = transfer->tx_buf[txpos++];
 	}
+#endif
 	ssp0_irq_data.txpos = txpos;
 
 	if (txpos == len)
 		spi->SSPIMSC &= ~(1<<3); /* disable TX half-empty interrupt */
 
+#if 0
 	/* there's data in rx fifo, so receive */
 	while (rxpos < len && (spi->SSPSR & 1<<2 /* RNE */)) {
 		//printf("spi, rx[%i]\n", rxpos);
 		transfer->rx_buf[rxpos++] = spi->SSPDR;
 	}
+#endif
 	ssp0_irq_data.rxpos = rxpos;
 
 	if (rxpos == len) {
+		goto end_transfer;
+	}
+	if (spi->SSPRIS & (1<<1) /* rx timeout */) {
+		printf("A");
+		spi->SSPICR = 1<<1; /* clear RTI */
+	}
+
+	if (spi->SSPRIS & (1<<0) /* rx fifo was full */) {
+		printf("B");
+		transfer->error = -ENOSPC;
+		goto end_transfer;
+	}
+
+	return;
+
+ end_transfer:
 	//if (spi->SSPRIS & (1<<1) /* rx timeout */) {
-		gpio_set(ssp0_irq_data.device->cs_pin, 1);
+	gpio_set(ssp0_irq_data.device->cs_pin, 1);
 	//	if (rxpos < len)
 	//		transfer->error = -ETIMEDOUT;
-		spi->SSPICR = 1<<1; /* clear RTI */
-		spi->SSPCR1 = 0; /* disable */
-		spi_transfer_finished(ssp0_irq_data.device, transfer);
-	}
-	if (spi->SSPRIS & (1<<1) /* rx timeout */)
-		spi->SSPICR = 1<<1; /* clear RTI */
+	spi->SSPICR = 1<<1; /* clear RTI */
+	spi->SSPCR1 = 0; /* disable */
+	spi_transfer_finished(ssp0_irq_data.device, transfer);
 }
 
 static int lpc_ssp_transfer(struct spi_device *device, struct spi_transfer *transfer)

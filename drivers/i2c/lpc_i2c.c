@@ -65,7 +65,7 @@ void __interrupt i2c1_handler()
 #ifdef MACH_LPC13XX
 static struct i2c_irq_data {
 	struct i2c_master *master;
-} i2c_irq_data[2];
+} i2c_irq_data[1];
 
 void __interrupt i2c_irqhandler()
 {

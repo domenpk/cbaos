@@ -8,6 +8,8 @@ if config.ARCH == 'unix':
 if 'MACH' in dir(config):
 	if config.MACH == 'lpc11xx' or config.MACH == 'lpc13xx' or config.MACH == 'lpc21xx':
 		SRCS.append('lpc_serial.c')
+		SRCS.append('lpc_serial_proper.c')
+		SRCS.append('lpc_spi_serial.c')
 	if config.MACH == 'stm32':
 		SRCS.append('stm32_serial.c')
 

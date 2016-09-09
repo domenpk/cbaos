@@ -1,5 +1,7 @@
-#ifndef _TYPES_H_
-#define _TYPES_H_
+#ifndef TYPES_H_
+#define TYPES_H_
+
+#include <stddef.h> /* size_t and so on */
 
 #ifndef u8
 #define u8 unsigned char

@@ -1,7 +1,15 @@
-SUBDIRS = 'gpio serial spi misc i2c 1w'
+SUBDIRS = [
+    'gpio',
+    'serial',
+    'spi',
+    'i2c',
+    '1w',
+    'net',
+    'pseudo',
+    'misc',
+    'watchdog',
+    ]
 
-obj = SConscript([ i+'/SConscript'  for i in Split(SUBDIRS) ])
-#obj = []
-#obj.append(SConscript([ i+'/SConscript'  for i in Split(SUBDIRS) ]))
+obj = SConscript([ i+'/SConscript'  for i in SUBDIRS ])
 
 Return('obj')

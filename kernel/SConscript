@@ -1,5 +1,5 @@
 #SRCS = 'init.c sched.c sem.c device.c stdio.c interrupt.c'
-SRCS = 'init.c sched.c sem.c device.c stdio.c'
+SRCS = 'init.c sched.c sem.c device.c stdio.c timekeeping.c'
 
 obj = [ Object(i)  for i in Split(SRCS) ]
 

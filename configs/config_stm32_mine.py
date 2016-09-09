@@ -7,3 +7,6 @@ MACH = 'stm32'
 CHIP = 'stm32f103x4'
 BOARD = 'stm32f103x4_mine'
 CONFIG_FCPU = 64000000
+
+#CONFIG_LCDTEST = 1
+APPLICATION = 'temp_switch'

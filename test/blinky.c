@@ -10,18 +10,22 @@
 #ifdef BOARD_LPCXPRESSO
 #include <mach/lpc13xx_gpio.h>
 #define GPIO_LED GPIO_0_7
+#define GPIO_LED2 GPIO_0_1
 #else
 #define GPIO_LED 0
+#define GPIO_LED2 0
 #endif
 
 static void blinky_func(u32 arg)
 {
 	int i= 0;
 	gpio_init(GPIO_LED, GPIO_OUTPUT, 0);
+	gpio_init(GPIO_LED2, GPIO_OUTPUT, 0);
 
 	while (1) {
 		printf("%s, loop %i\n", __func__, i);
 		gpio_set(GPIO_LED, i%2);
+		gpio_set(GPIO_LED2, i%2);
 		msleep(500);
 		i++;
 	}

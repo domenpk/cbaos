@@ -1,5 +1,6 @@
 /* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #include <sched.h>
+#include <timekeeping.h>
 #include <lock.h>
 #include <compiler.h>
 
@@ -68,6 +69,7 @@ void task_printall()
 {
 	int i;
 
+	printf("ERROR do not use this code in production\n");
 	printf("ready tasks:\n");
 	for (i=0; i<TASK_PRIORITIES; i++) {
 		struct list *list;
@@ -210,6 +212,9 @@ static void sched_run()
 	int i;
 	int runnable = 1;
 	u32 now = ticks_now();
+
+	timekeeping(now);
+
 //	fprintf(stderr, "%s:%i\n", __func__, ticks_now() - sched_time_started);
 
 	/* first wake tasks */
@@ -258,10 +263,11 @@ static void sched_run()
  */
 u32 sched_timeout(u32 ticks)
 {
-	u32 now = ticks_now();
+	u32 now;
 	sched_ctx_t ctx;
 
 	sched_lock(&ctx);
+	now = ticks_now();
 
 	if (current->dont_reschedule) {
 //fprintf(stderr, "%s: not rescheduling %s\n", __func__, current->name);

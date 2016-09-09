@@ -1,4 +1,5 @@
 SRCS = 'cbashell.c command.c '
+SRCS = ''
 
 obj = [ Object(i)  for i in Split(SRCS) ]
 

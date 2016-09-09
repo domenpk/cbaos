@@ -1,0 +1,41 @@
+#ifndef _LPC11XX_INTERRUPT_
+#define _LPC11XX_INTERRUPT_
+
+enum IRQ {
+	IRQ_WAKEUP_0_0 = 0,
+	IRQ_WAKEUP_0_1 = 1,
+	IRQ_WAKEUP_0_2 = 2,
+	IRQ_WAKEUP_0_3 = 3,
+	IRQ_WAKEUP_0_4 = 4,
+	IRQ_WAKEUP_0_5 = 5,
+	IRQ_WAKEUP_0_6 = 6,
+	IRQ_WAKEUP_0_7 = 7,
+	IRQ_WAKEUP_0_8 = 8,
+	IRQ_WAKEUP_0_9 = 9,
+	IRQ_WAKEUP_0_10 = 10,
+	IRQ_WAKEUP_0_11 = 11,
+	IRQ_WAKEUP_1_0 = 12,
+
+	IRQ_C_CAN = 13,
+	IRQ_SSP1 = 14,
+	IRQ_I2C = 15,
+	IRQ_TIMER_16_0 = 16,
+	IRQ_TIMER_16_1 = 17,
+	IRQ_TIMER_32_0 = 18,
+	IRQ_TIMER_32_1 = 19,
+	IRQ_SSP0 = 20,
+	IRQ_UART = 21,
+
+	/* 22, 23 = reserved */
+	IRQ_ADC = 24,
+	IRQ_WDT = 25,
+	IRQ_BOD = 26,
+
+	/* 27 = reserved */
+	IRQ_GPIO_3 = 28,
+	IRQ_GPIO_2 = 29,
+	IRQ_GPIO_1 = 30,
+	IRQ_GPIO_0 = 31,
+};
+
+#endif
