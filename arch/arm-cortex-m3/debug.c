@@ -106,8 +106,8 @@ void generic_exception_handler_c(u32 *oldstack, u32 *newstack, unsigned exceptio
 
 	task_printall();
 
-	printf("\nentering cbashell\n");
 #if 0
+	printf("\nentering cbashell\n");
 	cbashell_init();
 	while (1) {
 		int c;

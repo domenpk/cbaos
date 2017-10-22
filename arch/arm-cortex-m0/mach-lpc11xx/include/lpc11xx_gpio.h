@@ -103,8 +103,13 @@
 #define GPIO_3_2_DCD		(0x302 | GPIO_MARK | IOCON_REG(0x9c) | IOCON_SET(0xc1)) /* + DCDLOC */
 #define GPIO_3_3		(0x303 | GPIO_MARK | IOCON_REG(0xac) | IOCON_SET(0xc0|GPIO_HYST))
 #define GPIO_3_3_RI		(0x303 | GPIO_MARK | IOCON_REG(0xac) | IOCON_SET(0xc1)) /* + RILOC */
-/* only on lpc131x */
 #define GPIO_3_4		(0x304 | GPIO_MARK | IOCON_REG(0x3c) | IOCON_SET(0xc0|GPIO_HYST))
 #define GPIO_3_5		(0x305 | GPIO_MARK | IOCON_REG(0x48) | IOCON_SET(0xc0|GPIO_HYST))
+
+
+#define GPIO_PORT(pin) (((pin) >> 8) & 0x3)
+#define GPIO_PIN(pin) ((pin) & 0x1f)
+
+#define GPIO_PPIN(port, pin) (GPIO_MARK | ((port) << 8) | (pin)) /* port and pin merged */
 
 #endif

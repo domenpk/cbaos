@@ -5,8 +5,8 @@
 #include <arch/cm0_regs.h>
 #include <cbashell.h>
 
-extern void _ram_start;
-extern void _ram_end;
+extern unsigned long _ram_start;
+extern unsigned long _ram_end;
 
 static const char * const exceptions[] = {
 	"Unknown",
@@ -58,6 +58,7 @@ void generic_exception_handler_c(u32 *oldstack, u32 *newstack, unsigned exceptio
 	if (BFAR != 0xe000ed38)
 		printf("BFAR\t0x%08x\n", BFAR);
 
+#if 0
 	printf("\nentering cbashell\n");
 	cbashell_init();
 	while (1) {
@@ -66,4 +67,5 @@ void generic_exception_handler_c(u32 *oldstack, u32 *newstack, unsigned exceptio
 		if (c >= 0)
 			cbashell_charraw(c);
 	}
+#endif
 }

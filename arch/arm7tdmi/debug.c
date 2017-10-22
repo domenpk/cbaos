@@ -86,6 +86,7 @@ void dump_regs(struct regs *regs)
 		printf("spsr\t0x%08x\t%s, mode:%x\n", cpsr, str, cpsr & 0x1f);
 	}
 
+#if 0
 	printf("\nentering cbashell\n");
 	cbashell_init();
 	while (1) {
@@ -94,4 +95,5 @@ void dump_regs(struct regs *regs)
 		if (c >= 0)
 			cbashell_charraw(c);
 	}
+#endif
 }

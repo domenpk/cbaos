@@ -3,7 +3,7 @@ Import('config')
 SRCS = []
 
 if 'MACH' in dir(config):
-	if config.MACH == "lpc11xx" or config.MACH == "lpc13xx":
+	if config.MACH == "lpc13xx":
 		SRCS.append('lpc13xx_wdt.c')
 
 obj = [ Object(i)  for i in SRCS ]

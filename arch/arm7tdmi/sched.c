@@ -59,12 +59,13 @@ void __naked arch_task_first(struct task *task)
 }
 
 /* task to switch to */
-static struct task *new_task;
+struct task *new_task;
 
 /* arm arm A4.1.98 STM(2)
  * does the task switching from current to new_task */
 void __naked swi_handler()
 {
+	/* must not use auto allocated registers */
 	asm volatile (
 			/* banked registers: lr (thread pc), sp, xPSR */
 			"push	{lr}\n"		/* lr == thread pc */
@@ -86,12 +87,12 @@ void __naked swi_handler()
 			"ldr	r0, =current\n\t"
 			"ldr	r1, [r0]\n\t"
 
-			"str	lr, [r1, %0]\n\t"  /* current->context.psp = PSP */
+			"str	lr, [r1, %[context_off]]\n\t"  /* current->context.psp = PSP */
 
 			"ldr	r2, =new_task\n\t"
 			"ldr	r2, [r2]\n\t"
 
-			"ldr	lr, [r2, %0]\n\t"  /* PSP = new_task->context.psp */
+			"ldr	lr, [r2, %[context_off]]\n\t"  /* PSP = new_task->context.psp */
 
 			"str	r2, [r0]\n\t"      /* current = new_task */
 
@@ -111,7 +112,7 @@ void __naked swi_handler()
 			/* return to new_task */
 			"pop	{lr}\n"
 			"movs	pc, lr\n"
-			: : "i" (offsetof(struct task, context))
+			: : [context_off] "i" (offsetof(struct task, context))
 	);
 }
 

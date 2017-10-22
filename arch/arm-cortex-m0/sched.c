@@ -82,7 +82,7 @@ void __naked arch_task_first(struct task *task)
 }
 
 /* task to switch to */
-static struct task *new_task;
+struct task *new_task;
 
 /* cortex-m3 trm 5.11 Setting up multiple stacks
  * does the task switching from current to new_task */
@@ -90,6 +90,7 @@ void __naked pendsv_handler()
 {
 
 	// XXX idea, also for m3, could just switch stacks, and use push/pop
+	/* must not use auto allocated registers */
 	asm volatile (
 			"mrs	r3, PSP\n\t"
 
@@ -108,12 +109,12 @@ void __naked pendsv_handler()
 			/* save PSP */
 			"ldr	r0, =current\n\t"
 			"ldr	r1, [r0]\n\t"
-			"str	r3, [r1, %0]\n\t"  /* current->context.psp = PSP */
+			"str	r3, [r1, %[context_off]]\n\t"  /* current->context.psp = PSP */
 
 			/* get new PSP */
 			"ldr	r2, =new_task\n\t"
 			"ldr	r2, [r2]\n\t"
-			"ldr	r3, [r2, %0]\n\t"  /* PSP = new_task->context.psp */
+			"ldr	r3, [r2, %[context_off]]\n\t"  /* PSP = new_task->context.psp */
 
 			/* switch tasks */
 			"str	r2, [r0]\n\t"      /* current = new_task */
@@ -129,7 +130,7 @@ void __naked pendsv_handler()
 			"msr	PSP, r3\n\t"
 
 			"bx	lr"
-			: : "i" (offsetof(struct task, context))
+			: : [context_off] "i" (offsetof(struct task, context))
 	);
 }
 

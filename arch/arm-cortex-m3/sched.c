@@ -57,25 +57,26 @@ void __naked arch_task_first(struct task *task)
 	);
 }
 
-/* task to switch to */
-static struct task *new_task;
+/* task to switch to (not static because of inline assembly below */
+struct task *new_task;
 
 /* cortex-m3 trm 5.11 Setting up multiple stacks
  * does the task switching from current to new_task */
 void __naked pendsv_handler()
 {
+	/* must not use auto allocated registers */
 	asm volatile (
 			"ldr	r0, =current\n\t"
 			"ldr	r1, [r0]\n\t"
 
 			"mrs	r3, PSP\n\t"
 			"stmdb	r3!, {r4-r11}\n\t" /* save regs to process stack */
-			"str	r3, [r1, %0]\n\t"  /* current->context.psp = PSP */
+			"str	r3, [r1, %[context_off]]\n\t"  /* current->context.psp = PSP */
 
 			"ldr	r2, =new_task\n\t"
 			"ldr	r2, [r2]\n\t"
 
-			"ldr	r3, [r2, %0]\n\t"  /* PSP = new_task->context.psp */
+			"ldr	r3, [r2, %[context_off]]\n\t"  /* PSP = new_task->context.psp */
 			"ldmia	r3!, {r4-r11}\n\t" /* restore regs from process stack */
 			"msr	PSP, r3\n\t"
 
@@ -83,7 +84,7 @@ void __naked pendsv_handler()
 			"str	r2, [r0]\n\t"      /* current = new_task */
 
 			"bx	lr"
-			: : "i" (offsetof(struct task, context))
+			: : [context_off] "i" (offsetof(struct task, context))
 	);
 }
 

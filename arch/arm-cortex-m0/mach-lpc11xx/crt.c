@@ -37,7 +37,7 @@ void __naked dummy_handler()
 __attribute__ ((section(".vectors"))) void (* const _vectors[])() =
 {
 	/* exceptions, arch specific */
-	&_ram_end,              /* stack */
+	(void*)&_ram_end,              /* stack */
 	reset_handler,
 	nmi_handler,
 	hardfault_handler,

@@ -10,7 +10,6 @@
 #include <timekeeping.h>
 
 #include <gpio.h>
-#include <mach/lpc13xx_regs.h>
 #include <drivers/spi.h>
 #include <drivers/enc28j60.h>
 

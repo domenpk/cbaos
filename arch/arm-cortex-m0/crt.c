@@ -1,8 +1,6 @@
 /* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #include "arch/crt.h"
 
-extern void _ram_end;
-
 void __naked reset_handler()
 {
 	/* cortex-m3 trm 2.2.1 main stack and process stack */

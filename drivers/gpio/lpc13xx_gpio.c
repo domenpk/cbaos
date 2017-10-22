@@ -1,8 +1,10 @@
 /* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #ifdef MACH_LPC13XX
 #include <mach/lpc13xx_gpio.h>
+#include <mach/lpc13xx_interrupt.h>
 #elif defined MACH_LPC11XX
 #include <mach/lpc11xx_gpio.h>
+#include <mach/lpc11xx_interrupt.h>
 #else
 #error "this driver does not support your machine"
 #endif
@@ -12,7 +14,6 @@
 #include <compiler.h>
 #include <sched.h>
 #include <interrupt.h>
-#include <mach/lpc13xx_interrupt.h>
 
 
 #define dprintf(...)
