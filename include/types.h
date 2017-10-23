@@ -3,6 +3,8 @@
 
 #include <stddef.h> /* size_t and so on */
 
+#define linker_var_t extern struct not_defined
+
 #ifndef u8
 #define u8 unsigned char
 #endif
@@ -11,6 +13,9 @@
 #endif
 #ifndef u32
 #define u32 unsigned int
+#endif
+#ifndef u64
+#define u64 unsigned long long
 #endif
 
 #ifndef s8
@@ -21,6 +26,9 @@
 #endif
 #ifndef s32
 #define s32 signed int
+#endif
+#ifndef s64
+#define s64 signed long long
 #endif
 
 #endif

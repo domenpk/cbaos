@@ -2,8 +2,10 @@
 #define _ARCH_CRT_H_
 
 #include <compiler.h>
+#include <types.h>
 
-extern unsigned long _ram_end;
+linker_var_t _ram_start;
+linker_var_t _ram_end;
 
 void __naked reset_handler();
 void __naked unknown_handler();

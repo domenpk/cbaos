@@ -24,17 +24,17 @@ static inline void lock(struct lock *lock)
 {
 	u32 tmp;
 	asm volatile (
-		"mrs	%0, PRIMASK\n\t"
-		"cpsid	i\n\t"
-		: "=r" (tmp) );
+		"mrs	%0, PRIMASK\n\t"  /* 4 cycles */
+		"cpsid	i\n\t"            /* 1 cycle */
+		: "=r" (tmp) : : "memory" );
 	lock->primask = tmp;
 }
 
 static inline void unlock(struct lock *lock)
 {
 	asm volatile (
-		"msr	PRIMASK, %0\n\t"
-		: : "r" (lock->primask) );
+		"msr	PRIMASK, %0\n\t"  /* 4 cycles */
+		: : "r" (lock->primask) : "memory" );
 }
 
 #endif

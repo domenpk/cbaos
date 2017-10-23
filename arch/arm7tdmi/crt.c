@@ -1,7 +1,6 @@
 /* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #include <compiler.h>
-
-extern unsigned long _ram_end;
+#include <arch/crt.h>
 
 
 #if 0 /* very basic debugging code. when everything goes wrong, this will set some leds */

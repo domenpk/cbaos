@@ -3,10 +3,9 @@
 #include <stdio.h>
 #include <compiler.h>
 #include <arch/cm0_regs.h>
+#include <arch/crt.h>
 #include <cbashell.h>
 
-extern unsigned long _ram_start;
-extern unsigned long _ram_end;
 
 static const char * const exceptions[] = {
 	"Unknown",

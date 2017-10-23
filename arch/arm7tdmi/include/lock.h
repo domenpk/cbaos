@@ -22,7 +22,7 @@ static inline void lock(struct lock *lock)
 			"mrs	%0, CPSR\n"
 			"orr	r1, %0, #0x80\n" /* IRQ bit */
 			"msr	CPSR_c, r1\n"
-			: "=r" (tmp) : : "r1");
+			: "=r" (tmp) : : "r1", "memory" );
 	lock->cpsr = tmp;
 }
 
@@ -31,7 +31,7 @@ static inline void unlock(struct lock *lock)
 	asm volatile (
 			"and	%0, #0xff\n"
 			"msr	CPSR_c, %0\n"
-		: : "r" (lock->cpsr) );
+		: : "r" (lock->cpsr) : "memory" );
 }
 
 #endif
