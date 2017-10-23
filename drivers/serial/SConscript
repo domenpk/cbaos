@@ -12,6 +12,7 @@ if 'MACH' in dir(config):
 		SRCS.append('lpc_spi_serial.c')
 	if config.MACH == 'stm32':
 		SRCS.append('stm32_serial.c')
+	SRCS.append('semihosting_serial.c')
 
 obj = [ Object(i)  for i in SRCS ]
 

@@ -6,6 +6,7 @@
 #include <compiler.h>
 #include <version.h>
 
+#include <board.h>
 #include <gpio.h>
 
 #ifdef BOARD_LPCXPRESSO
@@ -20,9 +21,12 @@
 #include <mach/lpc13xx_gpio.h>
 #define GPIO_LED GPIO_1_5
 #define GPIO_LED2 GPIO_3_2
+#elif defined BOARD_QEMU_NETDUINO2
+#include <mach/stm32_gpio.h>
+#define GPIO_LED GPIO_PA0
+#define GPIO_LED2 GPIO_PA1
 #else
 #warning "no board defined"
-#define GPIO_LED 0
 #endif
 
 

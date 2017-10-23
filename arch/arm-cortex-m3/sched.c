@@ -181,7 +181,12 @@ void arch_sched_start_timer()
 	/* core clock, enable interrupt */
 	SYSTICK->RELOAD = 0;
 	SYSTICK->VALUE = 0;
+#ifdef BOARD_QEMU_NETDUINO2
+	/* div by 0 if using core clock on some QEMU platforms */
+	SYSTICK->CTRL = 1<<1;
+#else
 	SYSTICK->CTRL = 1<<2 | 1<<1;
+#endif
 
 	/* set SysTick pending to get scheduled asap */
 	ICSR = ICSR_PENDSTSET;
