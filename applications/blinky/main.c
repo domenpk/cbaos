@@ -4,6 +4,7 @@
 #include <sched.h>
 #include <lock.h>
 #include <compiler.h>
+#include <version.h>
 
 #include <gpio.h>
 
@@ -54,13 +55,17 @@ static void blinky_nosched(void)
 			const char *s = "putchar\r\n";
 			while (*s)
 				putchar(*s++);
-		}
+		} else
 		if (i == 6) {
 			const char s[] = "fwrite\r\n";
 			fwrite(stdout, s, sizeof(s));
-		}
-		if (i > 6)
+		} else
+		if (i == 7) {
+			printf("%s, printf test; build: \"%s\"\n", __func__, VERSION);
+		} else
+		if (i > 7) {
 			printf("%s, printf test %i\n", __func__, i);
+		}
 
 		gpio_set(GPIO_LED, on);
 		gpio_set(GPIO_LED2, !on);

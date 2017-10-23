@@ -5,6 +5,9 @@
 import os
 import config
 
+# even AddPreAction is executed after compiling, so this is a workaround
+os.system("./scripts/generate_version.sh")
+
 SRCS=''
 if not 'APPLICATION' in dir(config):
 	SRCS = 'main.c'
@@ -57,6 +60,7 @@ if env.has_key('OBJCOPY'):
 	env.Append(BUILDERS = {'ObjCopy':objcopy_bldr}) 
 #env.Append(BUILDERS = {'Size':Builder(action = 'size $SOURCE') })
 env.Append(BUILDERS = {'Size':Builder(action = 'echo \'read a b c d_ <<< $$(size $SOURCE | tail -1); echo "FLASH: $$(($$a+$$b)); RAM: $$(($$b+$$c))"\' | bash') })
+#env.Append(BUILDERS = {'Version':Builder(action = './scripts/generate_version.sh') })
 
 
 # allow environment variables to work around these
@@ -74,13 +78,15 @@ Export('env config')
 src = Split(SRCS)
 src.append(SConscript([ i+'/SConscript'  for i in Split(SUBDIRS) ]))
 
-Program(config.NAME, src)
-Decider('timestamp-match')
-
 if env.has_key('OBJCOPY'):
 	env.ObjCopy(OCFLAGS='-O ihex', target=config.NAME.replace('.elf', '.hex'), source=config.NAME)
 	env.ObjCopy(OCFLAGS='-O binary', target=config.NAME.replace('.elf', '.bin'), source=config.NAME)
 env.Size(source=config.NAME)
+#version_h = env.Version(source="scripts/generate_version.sh")
+
+prog = Program(config.NAME, src)
+#Requires(prog, version_h)
+Decider('timestamp-match')
 
 
 # you'd make objcopy like this:
