@@ -1,7 +1,15 @@
 #include <interrupt.h>
+#ifdef MACH_LPC13XX
 #include <mach/lpc13xx_regs.h>
 #include <mach/lpc13xx_interrupt.h>
 #include <mach/lpc13xx_wdt.h>
+#elif defined MACH_LPC11XX
+#include <mach/lpc11xx_regs.h>
+#include <mach/lpc11xx_interrupt.h>
+#include <mach/lpc11xx_wdt.h>
+#else
+#error "this driver does not support your machine"
+#endif
 #include <drivers/watchdog.h>
 
 
