@@ -72,7 +72,7 @@ void up(struct sem *sem)
 
 	/* must call scheduler, to get the woken task running */
 	if (resched)
-		arch_sched_next_interrupt(1); /* now, this is ok, since we only schedule it. but it's still some delay that i don't like */
+		arch_sched_now();
 //		sched_yield();
 //		arch_task_switch(task);
 	// ^ this is problematic... if up() is called from interrupt, then it's not quite normal to call SVC here, were not in task context! fuck
@@ -152,5 +152,5 @@ void mutex_up(struct mutex *mutex)
 
 	/* must call scheduler, to get the woken task running */
 	if (resched)
-		arch_sched_next_interrupt(1); /* now, this is ok, since we only schedule it. but it's still some delay that i don't like */
+		arch_sched_now();
 }

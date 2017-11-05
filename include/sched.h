@@ -78,6 +78,7 @@ void arch_task_switch(struct task *newt);
 void arch_task_first(struct task *task);
 void arch_sched_start_timer(void);
 void arch_wait_for_interrupt(void);
+void arch_sched_now(void);
 void arch_sched_next_interrupt(int offset);
 u32 arch_ticks_now(void);
 

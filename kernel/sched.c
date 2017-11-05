@@ -21,6 +21,9 @@
  */
 
 
+//#define dprintf printf
+#define dprintf(...)
+
 #define sched_ctx_t struct lock
 #define sched_lock lock
 #define sched_unlock unlock
@@ -68,6 +71,7 @@ u32 ticks_now()
 void task_printall()
 {
 	int i;
+	u32 now = ticks_now();
 
 	printf("ERROR do not use this code in production\n");
 	printf("ready tasks:\n");
@@ -98,7 +102,7 @@ void task_printall()
 			for (s=0; s<len; s++)
 				if (task->stack[s] != MAGIC_STACK_POISON)
 					break;
-			printf("\t%s, stack:%i/%i, timeout in %i ticks\n", task->name, len-s, len, task->timeout-ticks_now());
+			printf("\t%s, stack:%i/%i, timeout in %i ticks\n", task->name, len-s, len, task->timeout-now);
 		}
 	}
 
@@ -162,7 +166,7 @@ static int sched_process_timeout(u32 now)
 		struct list *list, *list2;
 		list_for_each_safe(&tasks_waiting[i], list, list2) {
 			struct task *task = list_entry(list, struct task, list);
-			if (time_after(now, task->timeout)) {
+			if (time_after_eq(now, task->timeout)) {
 				list_del(list);
 				list_add(&tasks_ready[i], list); /* add to start */
 				/* don't care about task->timeout anymore, since it's running */
@@ -202,7 +206,12 @@ static void sched_next_wake(int runnable, u32 now)
 		timeo = next_event;
 	}
 
-	arch_sched_next_interrupt(timeo-now);
+	if (timeo > now) {
+		arch_sched_next_interrupt(timeo-now);
+	} else {
+		task_printall();
+		arch_sched_now();
+	}
 }
 
 /* must be called under sched_lock */
@@ -215,13 +224,13 @@ static void sched_run()
 
 	timekeeping(now);
 
-//	fprintf(stderr, "%s:%i\n", __func__, ticks_now() - sched_time_started);
+	dprintf("%s: now:%d, next_event:%d\n", __func__, now, next_event);
 
 	/* first wake tasks */
 	/* FIXME, i don't like this. It isn't very clear */
 	if (next_event) {
 		/* event woke us, so wake the waiting tasks */
-		if (time_before(next_event, now))
+		if (time_before_eq(next_event, now))
 			sched_process_timeout(now);
 	}
 
@@ -243,7 +252,7 @@ static void sched_run()
 	runnable = 0;
 
  picked_next_task:
-//	fprintf(stderr, "%s: switching to %s, runnable: %i\n", __func__, task->name, runnable);
+	dprintf("%s: switching to %s, runnable: %i\n", __func__, task->name, runnable);
 
 	sched_next_wake(runnable, now);
 
@@ -270,7 +279,7 @@ u32 sched_timeout(u32 ticks)
 	now = ticks_now();
 
 	if (current->dont_reschedule) {
-//fprintf(stderr, "%s: not rescheduling %s\n", __func__, current->name);
+		dprintf("%s: not rescheduling %s\n", __func__, current->name);
 		sched_unlock(&ctx);
 		return ticks;
 	}
@@ -281,7 +290,7 @@ u32 sched_timeout(u32 ticks)
 		current->timeout = 1;
 
 	task_make_waiting(current);
-//fprintf(stderr, "%s: %s will wait\n", __func__, current->name);
+	dprintf("%s: %s will wait\n", __func__, current->name);
 
 	/* ugh, but only if we're already waiting on timeout */
 	if (next_event == 0 || time_before(current->timeout, next_event)) {
@@ -326,7 +335,7 @@ u32 msleep(u32 msecs)
 
 void sched_interrupt()
 {
-//	fprintf(stderr, "%s: now:%i\n", __func__, ticks_now());
+	dprintf("%s: now:%i\n", __func__, ticks_now());
 	sched_ctx_t ctx;
 	sched_lock(&ctx);
 
