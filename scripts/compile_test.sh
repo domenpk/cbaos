@@ -6,7 +6,13 @@ failed=0
 echo "trying to compile all configurations from configs/"
 for i in configs/*; do
 	let all++
-	./use_config.py $i; make &>/dev/null
+	./scripts/use_config.py "$i"
+
+	if [ -z "$V" ]; then
+		make &>/dev/null
+	else
+		make
+	fi
 	if [ $? -ne 0 ]; then
 		echo -e "\t$i failed"
 		let failed++
