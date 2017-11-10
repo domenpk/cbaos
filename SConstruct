@@ -40,6 +40,7 @@ if 'CROSSCOMPILE' in dir(config):
 	env['OBJCOPY'] = config.CROSSCOMPILE+'-objcopy'
 
 env['CFLAGS'] = ['-Wall', '-Os', '-g', '-Wno-char-subscripts']
+env['CFLAGS'] += ['-Wmissing-prototypes']
 
 # import variables from config as defines, ie. ARCH_ARM_CORTEX_M3
 for i in dir(config):

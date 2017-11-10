@@ -1,10 +1,7 @@
 Import('env', 'config')
 
-SRCS = 'crt.c'
+SRCS = ['crt.c', 'board_'+config.BOARD]
 
-if config.BOARD == 'lpcxpresso1114':
-	SRCS += ' board_lpcxpresso1114.c '
-
-obj = [ Object(i)  for i in Split(SRCS) ]
+obj = [ Object(i) for i in SRCS]
 
 Return('obj')

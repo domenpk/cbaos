@@ -100,7 +100,7 @@ static struct uart_irq_data {
 
 #if 0
 #include <compiler.h>
-__naked void uart_irqhandler()
+__naked_asm void uart_irqhandler()
 {
 	asm volatile (
 		"tst	lr, #0x4\n\t" /* process task, see EXC_RETURN */

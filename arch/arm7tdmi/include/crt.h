@@ -7,6 +7,6 @@
 linker_var_t _ram_start;
 linker_var_t _ram_end;
 
-void __naked reset_handler();
+void reset_handler();
 
 #endif

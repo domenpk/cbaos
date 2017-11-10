@@ -1,4 +1,5 @@
-/* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
+/* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
+#include <compiler.h>
 #include <arch/crt.h>
 
 
@@ -36,7 +37,7 @@ void pioint1_irqhandler() __alias(dummy_handler);
 void pioint0_irqhandler() __alias(dummy_handler);
 
 
-void __naked dummy_handler()
+void __naked_asm dummy_handler()
 {
 	asm volatile (	"b	generic_exception_handler\n\t");
 }

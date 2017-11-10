@@ -15,7 +15,7 @@ env.Append(CFLAGS = cfl.split())
 env.Append(LINKFLAGS = ldf.split())
 
 
-SRCS = 'crt.c debug.c sched.c interrupt.c'
+SRCS = 'crt.c debug.c sched.c interrupt.c ../arm-cortex-m3/systick.c'
 SUBDIRS = 'mach-'+config.MACH
 
 obj = [ Object(i)  for i in Split(SRCS) ]

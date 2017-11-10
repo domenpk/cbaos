@@ -1,5 +1,11 @@
-/* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
+/* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
+#include <compiler.h>
 #include <arch/crt.h>
+
+static void __naked_asm dummy_handler()
+{
+	asm volatile (	"b	generic_exception_handler\n\t");
+}
 
 /* lets have weak aliases to dummy handler */
 void nmi_handler() __alias(dummy_handler);
@@ -28,11 +34,6 @@ void pioint2_irqhandler() __alias(dummy_handler);
 void pioint1_irqhandler() __alias(dummy_handler);
 void pioint0_irqhandler() __alias(dummy_handler);
 
-
-void __naked dummy_handler()
-{
-	asm volatile (	"b	generic_exception_handler\n\t");
-}
 
 __attribute__ ((section(".vectors"))) void (* const _vectors[])() =
 {

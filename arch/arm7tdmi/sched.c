@@ -43,18 +43,21 @@ void arch_task_new(struct task *task, void (*func)(u32 arg), u32 arg)
 	task->context.psp = (u32)&task->stack[task->stack_len-16];
 }
 
-void __naked arch_task_first(struct task *task)
+void __naked_asm arch_task_first(struct task *task)
 {
 	current = task;
 	asm volatile (
+			"ldr	r1, =current\n\t"
+			"str	%[task], [r1]\n\t"
+
 			/* restore created context */
-			"mov	sp, %0\n\t"
+			"mov	sp, %[psp]\n\t"
 
 			"add	sp, sp, #8\n\t"    /* pc and xPSR space, just ignore it */
 			"pop	{r0-r12,lr}\n\t"
 
 			"ldr	pc, [sp, #-64]\n\t" /* and jump to the task entry; sp here is top of stack so -64 is entry -16 = func */
-			: : "r" (task->context.psp)
+			: : [task] "r" (task), [psp] "r" (task->context.psp)
 	);
 }
 
@@ -63,7 +66,7 @@ struct task *new_task;
 
 /* arm arm A4.1.98 STM(2)
  * does the task switching from current to new_task */
-void __naked swi_handler()
+void __naked_asm swi_handler()
 {
 	/* must not use auto allocated registers */
 	asm volatile (

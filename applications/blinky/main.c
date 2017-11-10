@@ -25,6 +25,10 @@
 #include <mach/stm32_gpio.h>
 #define GPIO_LED GPIO_PA0
 #define GPIO_LED2 GPIO_PA1
+#elif defined BOARD_QEMU_NETDUINO2_CM0
+#include <mach/lpc11xx_gpio.h>
+#define GPIO_LED GPIO_0_7
+#define GPIO_LED2 GPIO_0_1
 #else
 #warning "no board defined"
 #endif

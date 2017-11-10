@@ -1,4 +1,4 @@
-/* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
+/* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #include <compiler.h>
 #include <arch/crt.h>
 
@@ -18,7 +18,7 @@
 			"foo:	b foo\n"
 #endif
 
-void __naked reset_handler()
+void __naked_asm reset_handler()
 {
 	asm volatile (
 			"msr	CPSR_c, #0xc0|0x11\n" /* fiq */
@@ -41,7 +41,7 @@ void __naked reset_handler()
 	);
 }
 
-void __naked generic_exception_handler()
+void __naked_asm generic_exception_handler()
 {
 	asm volatile (
 			"push	{lr}\n" /* = stmfd/stmdb sp! */

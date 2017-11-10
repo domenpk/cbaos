@@ -10,12 +10,12 @@ void pabort_handler() __alias(dummy_handler);
 void fiq_handler() __alias(dummy_handler);
 
 
-void __naked dummy_handler()
+void __naked_asm dummy_handler()
 {
 	asm volatile (	"b	generic_exception_handler\n\t");
 }
 
-__attribute__ ((section(".vectors"))) void __naked _vectors()
+__attribute__ ((section(".vectors"))) void __naked_asm _vectors()
 {
 	asm volatile (
 			"ldr	pc, =reset_handler\n"

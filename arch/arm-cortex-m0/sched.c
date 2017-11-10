@@ -1,26 +1,12 @@
-/* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
+/* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #include <stdio.h>
 
 #include <sched.h>
 #include <compiler.h>
 
-#include <arch/sched.h>
+#include <arch/crt.h>
 #include <arch/cm0_regs.h>
 
-
-static u32 current_counter;
-
-u32 arch_ticks_now()
-{
-	/* so, here's the deal, SYSTICK->VALUE == 0 means we counted down,
-	 * but then current_counter is already incremented, so just treat
-	 * it as 0xffffff, which is the best approximation */
-	/* VALUE of 0 will add 0 to current_counter here: */
-	/* or so I thought, but following DOES NOT work ok at all */
-	//return current_counter + 0xffffff - ((SYSTICK->VALUE-1) & 0xffffff);
-
-	return current_counter + 0xffffff - (SYSTICK->VALUE & 0xffffff);
-}
 
 /* cortex-m3 pushes following on stack when entering exception: xPSR, PC, LR, r12, r3, r2, r1, r0
  * what's remaining/needs to be saved is: PSP, r4-r11
@@ -50,12 +36,15 @@ void arch_task_new(struct task *task, void (*func)(u32 arg), u32 arg)
 	task->context.psp = (u32)&task->stack[task->stack_len-16];
 }
 
-void __naked arch_task_first(struct task *task)
+void __naked_asm arch_task_first(struct task *task)
 {
-	current = task;
+	/* one must not mix asm and C in naked functions */
 	asm volatile (
+			"ldr	r1, =current\n\t"
+			"str	%[task], [r1]\n\t"
+
 			/* restore created context */
-			"mov	sp, %0\n\t"
+			"mov	sp, %[psp]\n\t"
 
 			"pop	{r4-r7}\n"
 			"mov	r8, r4\n"
@@ -77,7 +66,7 @@ void __naked arch_task_first(struct task *task)
 			//"ldr	r3, [sp, #-8]\n\t" /* and jump to the task entry, sp here is top of stack, so -8 is entry -2 = func */
 			"pop	{r2, r3}\n" /* r2 (pc), r3 (xPSR) */
 			"mov	pc, r2\n"
-			: : "r" (task->context.psp)
+			: : [task] "r" (task), [psp] "r" (task->context.psp)
 	);
 }
 
@@ -86,7 +75,7 @@ struct task *new_task;
 
 /* cortex-m3 trm 5.11 Setting up multiple stacks
  * does the task switching from current to new_task */
-void __naked pendsv_handler()
+void __naked_asm pendsv_handler()
 {
 
 	// XXX idea, also for m3, could just switch stacks, and use push/pop
@@ -141,56 +130,7 @@ void arch_task_switch(struct task *newt)
 	ICSR = ICSR_PENDSVSET;
 }
 
-void arch_sched_start_timer()
-{
-	/* core clock, enable interrupt, enable systick */
-	SYSTICK->RELOAD = 0;
-	SYSTICK->VALUE = 0;
-	SYSTICK->CTRL |= 1<<2 | 1<<1 | 1<<0;
-
-	/* set SysTick pending to get scheduled asap */
-	ICSR = ICSR_PENDSTSET;
-}
-
 void arch_wait_for_interrupt()
 {
 	asm volatile ("wfi");
-}
-
-static int systick_whole;
-static int systick_remainder;
-
-/* writing anything to SYSTICK->VALUE clears it (and doesn't cause the interrupt), but the reloads it with RELOAD on next timer tick */
-void arch_sched_next_interrupt(int offset)
-{
-	systick_whole = offset >> 24;
-	systick_remainder = offset & 0xffffff;
-	if (systick_remainder == 0)
-		systick_remainder = 1;
-
-	if (systick_whole) {
-		SYSTICK->RELOAD = 0xffffff;
-		SYSTICK->VALUE = 0;
-	} else {
-		SYSTICK->RELOAD = systick_remainder;
-		SYSTICK->VALUE = 0; /* clear */
-	}
-}
-
-void systick_handler()
-{
-	current_counter += SYSTICK->RELOAD;
-
-	if (systick_whole) {
-		/* last part? then load the remainder */
-		if (--systick_whole == 0) {
-			SYSTICK->RELOAD = systick_remainder;
-			SYSTICK->VALUE = 0;
-		}
-		return;
-	}
-	/* disable timer */
-	SYSTICK->RELOAD = 0;
-	SYSTICK->VALUE = 0;
-	sched_interrupt();
 }

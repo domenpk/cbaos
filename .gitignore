@@ -1,0 +1,11 @@
+*.o
+*.pyc
+cscope.out
+.gdb_history
+.sconsign.dblite
+cbaos.elf
+cbaos.elf.map
+config.py
+include/arch
+include/mach
+include/version.h

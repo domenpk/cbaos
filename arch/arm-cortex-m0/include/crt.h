@@ -7,12 +7,12 @@
 linker_var_t _ram_start;
 linker_var_t _ram_end;
 
-void __naked reset_handler();
-void __naked unknown_handler();
-void __naked nmi_handler();
-void __naked hardfault_handler();
-void __naked svc_handler();
-void __naked pendsv_handler();
-void __naked systick_handler();
+void reset_handler(void);
+void unknown_handler(void);
+void nmi_handler(void);
+void hardfault_handler(void);
+void svc_handler(void);
+void pendsv_handler(void);
+void systick_handler(void);
 
 #endif

@@ -6,8 +6,8 @@
 /* only gcc stuff for now */
 #define __alias(f)	__attribute__((weak, alias (#f)))
 
-#ifndef __naked
-#define __naked		__attribute__((naked))
+#ifndef __naked_asm
+#define __naked_asm	__attribute__((naked))
 #endif
 
 #ifndef __interrupt

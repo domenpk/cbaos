@@ -1,7 +1,8 @@
-/* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
-#include "arch/crt.h"
+/* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
+#include <compiler.h>
+#include <arch/crt.h>
 
-void __naked reset_handler()
+void __naked_asm reset_handler()
 {
 	/* cortex-m3 trm 2.2.1 main stack and process stack */
 	asm volatile (
@@ -26,7 +27,7 @@ void __naked reset_handler()
 }
 
 /* cortex-m3 trm, 5.5.1, mcu stacks xPSR, PC, LR, R12, R3, R2, R1, R0 */
-void __naked generic_exception_handler()
+void __naked_asm generic_exception_handler()
 {
 	asm volatile (
 			"tst	lr, #0x4\n\t" /* process task, see EXC_RETURN */
