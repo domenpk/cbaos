@@ -1,7 +1,6 @@
 /* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <errno.h>
 
 #include <sched.h>
@@ -222,17 +221,17 @@ int enc28j60_reg_write(struct enc28j60_dev *enc, u32 reg, u32 value)
 }
 
 /* only for E regs! */
-int enc28j60_reg_write_bits_set(struct enc28j60_dev *enc, u32 reg, u32 value)
+static int enc28j60_reg_write_bits_set(struct enc28j60_dev *enc, u32 reg, u32 value)
 {
 	return _enc28j60_reg_write_common(enc, reg, value, 0x80);
 }
-int enc28j60_reg_write_bits_clear(struct enc28j60_dev *enc, u32 reg, u32 value)
+static int enc28j60_reg_write_bits_clear(struct enc28j60_dev *enc, u32 reg, u32 value)
 {
 	return _enc28j60_reg_write_common(enc, reg, value, 0xa0);
 }
 
 /* AUTOINC needs to be enabled for this. buf must be 1 longer, first byte is cmd */
-int enc28j60_read(struct enc28j60_dev *enc, u8 *buf, int len)
+static int enc28j60_read(struct enc28j60_dev *enc, u8 *buf, int len)
 {
 	struct spi_transfer transfer;
 	buf[0] = 0x3a; /* RBM, read buffer memory */
@@ -246,7 +245,7 @@ int enc28j60_read(struct enc28j60_dev *enc, u8 *buf, int len)
 }
 
 /* AUTOINC needs to be enabled for this. buf must be 1 longer, first byte is cmd */
-int enc28j60_write(struct enc28j60_dev *enc, u8 *buf, int len)
+static int enc28j60_write(struct enc28j60_dev *enc, u8 *buf, int len)
 {
 	struct spi_transfer transfer;
 	buf[0] = 0x7a; /* WBM, write buffer memory */
@@ -259,7 +258,7 @@ int enc28j60_write(struct enc28j60_dev *enc, u8 *buf, int len)
 	return ret;
 }
 
-int enc28j60_reset(struct enc28j60_dev *enc)
+static int enc28j60_reset(struct enc28j60_dev *enc)
 {
 	struct spi_transfer transfer;
 	u8 buf[1];
@@ -273,7 +272,7 @@ int enc28j60_reset(struct enc28j60_dev *enc)
 	return ret;
 }
 
-int enc28j60_sanity_check(struct enc28j60_dev *enc)
+static int enc28j60_sanity_check(struct enc28j60_dev *enc)
 {
 	if ((enc28j60_reg_read(enc, ECON2)&0xf8) != 0x80)
 		return -1;
@@ -374,7 +373,7 @@ int enc28j60_setup(struct spi_master *spi, int gpio_cs, int gpio_int)
 	return 0;
 }
 
-void enc28j60_debug(void)
+static void enc28j60_debug(void)
 {
 	printf("%s: ECON1:%x (0x08 should be clear on success or abort)\n", __func__, enc28j60_reg_read(&enc, ECON1));
 	printf("%s: ECON2:%x\n", __func__, enc28j60_reg_read(&enc, ECON2));

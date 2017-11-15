@@ -7,6 +7,7 @@
 #include <compiler.h>
 #include <drivers/i2c.h>
 #include <drivers/lpc_i2c.h>
+#include <mach/crt.h>
 
 
 

@@ -2,3 +2,6 @@
 
 NAME = 'cbaos.elf'
 ARCH = 'unix'
+LIBC = 'glibc'
+
+APPLICATION = 'blinky'

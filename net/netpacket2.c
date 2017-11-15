@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include <net/netpacket.h>
+#include <drivers/enc28j60.h>
 
 
 /* send one packet that's queued for sending */

@@ -14,6 +14,7 @@
 #include <compiler.h>
 #include <sched.h>
 #include <interrupt.h>
+#include <mach/crt.h>
 
 
 #define dprintf(...)
@@ -84,8 +85,9 @@ int gpio_get(int pin)
 	return LPC_GPIO[port].DATA[1<<pin]>>pin & 1;
 }
 
+#if 0
 /* should not be needed, just use gpio_irq_register */
-int gpio_irq_ispending(int pin)
+static int gpio_irq_ispending(int pin)
 {
 	int port = GPIO_PORT(pin);
 	pin &= 0x1f;
@@ -98,7 +100,7 @@ int gpio_irq_ispending(int pin)
 	return val;
 }
 
-void gpio_irq_ack(int pin)
+static void gpio_irq_ack(int pin)
 {
 	int port = GPIO_PORT(pin);
 	pin &= 0x1f;
@@ -106,8 +108,9 @@ void gpio_irq_ack(int pin)
 	LPC_GPIO[port].IC = 1<<pin;
 	asm volatile ("nop\n nop"); /* lpc1343 um says so */
 }
+#endif
 
-void gpio_irq_setup(int pin, enum gpio_irq_edge edge)
+static void gpio_irq_setup(int pin, enum gpio_irq_edge edge)
 {
 	int port = GPIO_PORT(pin);
 	if (!(pin & GPIO_MARK))
@@ -225,7 +228,7 @@ void gpio_irq_debug(void)
 	printf("%s: total: %d; registered handlers: %d\n", __func__, totcount, reghandl);
 }
 
-void __interrupt pioint0_irqhandler(void) { gpio_irqhandler(0); }
-void __interrupt pioint1_irqhandler(void) { gpio_irqhandler(1); }
-void __interrupt pioint2_irqhandler(void) { gpio_irqhandler(2); }
-void __interrupt pioint3_irqhandler(void) { gpio_irqhandler(3); }
+void pioint0_irqhandler(void) { gpio_irqhandler(0); }
+void pioint1_irqhandler(void) { gpio_irqhandler(1); }
+void pioint2_irqhandler(void) { gpio_irqhandler(2); }
+void pioint3_irqhandler(void) { gpio_irqhandler(3); }

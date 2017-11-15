@@ -8,14 +8,19 @@ for i in configs/*; do
 	let all++
 	./scripts/use_config.py "$i"
 
+	prefix=""
 	if [ -z "$V" ]; then
+		echo -en "\t$i ..."
 		make &>/dev/null
 	else
+		prefix="\t$i"
 		make
 	fi
 	if [ $? -ne 0 ]; then
-		echo -e "\t$i failed"
+		echo -e "$prefix fail"
 		let failed++
+	else
+		echo -e "$prefix OK"
 	fi
 	make clean &>/dev/null
 done

@@ -1,0 +1,6 @@
+SRCS = ['string.c', 'printf.c']
+SRCS += ['stdio.c']
+
+obj = [ Object(i)  for i in SRCS ]
+
+Return('obj')

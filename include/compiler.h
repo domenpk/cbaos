@@ -23,7 +23,7 @@
 #endif
 
 #ifndef __inline
-#define __inline	__attribute__((always_inline))
+#define __inline	__attribute__((always_inline)) inline
 #endif
 
 #ifndef __packed

@@ -40,6 +40,11 @@ SECTIONS
 		_ebss = ALIGN(4);
 	} >RAM
 
+	.heap(COPY):
+	{
+		PROVIDE(end = .); /* for newlib */
+		*(.heap*)
+	} > RAM
 /*	blah :
 	{
 		*(.init*)

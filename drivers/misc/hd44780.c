@@ -20,7 +20,7 @@ static void lcd_put(struct hd44780_data *lcd, int rs, int data)
 	gpio_set(lcd->pins.e, 0);
 }
 
-int lcd_read(struct hd44780_data *lcd, int rs)
+static int lcd_read(struct hd44780_data *lcd, int rs)
 {
 	int tmp;
 	gpio_init(lcd->pins.d4, GPIO_INPUT, 0);

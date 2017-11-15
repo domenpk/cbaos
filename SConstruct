@@ -1,6 +1,5 @@
 # command line parameters
 # V=1 - verbose build
-# LIBC=0 - don't link with libc
 
 import os
 import config
@@ -41,6 +40,20 @@ if 'CROSSCOMPILE' in dir(config):
 
 env['CFLAGS'] = ['-Wall', '-Os', '-g', '-Wno-char-subscripts']
 env['CFLAGS'] += ['-Wmissing-prototypes']
+
+if 'LIBC' in dir(config):
+    if config.LIBC == 'newlib':
+        # provide dummy implementations of _write/_read/etc.
+        env['LINKFLAGS'] += ['-specs=nosys.specs']
+        # smaller footprint
+        env['LINKFLAGS'] += ['-specs=nano.specs']
+else:
+    env['CFLAGS'] += ['-nostdinc']
+    env['LINKFLAGS'] += ['-nodefaultlibs', '-nostdlib']
+    # still need gcc to generate _uidiv and similar
+    env['LIBS'] = ['gcc']
+    SUBDIRS += ' libc'
+    env.Append(CPPPATH = ['#/libc/include/'])
 
 # import variables from config as defines, ie. ARCH_ARM_CORTEX_M3
 for i in dir(config):
@@ -85,7 +98,7 @@ if env.has_key('OBJCOPY'):
 env.Size(source=config.NAME)
 #version_h = env.Version(source="scripts/generate_version.sh")
 
-prog = Program(config.NAME, src)
+prog = env.Program(config.NAME, src)
 #Requires(prog, version_h)
 Decider('timestamp-match')
 

@@ -140,11 +140,3 @@ void *memset(void *_s, int c, size_t n)
 
 	return _s;
 }
-
-// XXX not string.c
-int abs(int j)
-{
-	if (j < 0)
-		return -j;
-	return j;
-}

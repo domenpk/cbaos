@@ -44,7 +44,7 @@ static struct {
 	u32 renewal_time;
 } dhcp_state;
 
-int dhcp_negotiate_discover(void)
+static int dhcp_negotiate_discover(void)
 {
 	const int len = sizeof(struct dhcp_packet)+4; /* 4B for options */
 	struct netpacket *packet;
@@ -76,7 +76,7 @@ int dhcp_negotiate_discover(void)
 	return ret;
 }
 
-int dhcp_negotiate_request(ip_t siaddr, ip_t yiaddr)
+static int dhcp_negotiate_request(ip_t siaddr, ip_t yiaddr)
 {
 	const int len = sizeof(struct dhcp_packet)+16; /* 3+6+6+1 B for options */
 	struct netpacket *packet;
@@ -120,7 +120,7 @@ int dhcp_negotiate_request(ip_t siaddr, ip_t yiaddr)
 	return ret;
 }
 
-static int dhcp_handle(u8 *buf, unsigned len)
+static int dhcp_handle(u8 *buf, size_t len)
 {
 	struct dhcp_packet *dhcp = (struct dhcp_packet *)buf;
 

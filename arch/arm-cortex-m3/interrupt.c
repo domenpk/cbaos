@@ -30,9 +30,11 @@ void irq_ack(int irq)
 // clear pending - this only clears the pending bit that you can set. no ack is needed
 //	NVIC->ICPR[irq>>5] = 1 << (irq&0x1f);
 
+#if 0
 static irqreturn_t irq_default_handler(int irq, void *dev_id)
 {
 	printf("%s: unhandled irq %i, disabling\n", __func__, irq);
 	irq_disable(irq);
 	return IRQ_HANDLED;
 }
+#endif

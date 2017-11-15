@@ -2,10 +2,6 @@ SRCS = [
     'bip_buf.c',
     'circ_buf.c',
     'helpers.c',
-    'printf.c',
-    'printf_test.c',
-    #'string_extra.c',
-    'string.c',
     ]
 
 obj = [ Object(i)  for i in SRCS ]

@@ -12,7 +12,7 @@
 static LIST_DECLARE_INIT(ip_handler_list);
 
 
-static int ip_handle(u8 *buf, unsigned len)
+static int ip_handle(u8 *buf, size_t len)
 {
 	struct ip_packet *ip = (struct ip_packet*)buf;
 

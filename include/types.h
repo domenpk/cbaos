@@ -2,6 +2,16 @@
 #define TYPES_H_
 
 #include <stddef.h> /* size_t and so on */
+#ifdef LIBC_NEWLIB
+#include <sys/types.h>
+#endif
+#ifdef LIBC_GLIBC
+#include <sys/unistd.h>
+#endif
+
+#ifndef offsetof
+#define offsetof(type, member) (unsigned)(&((type*)0)->member)
+#endif
 
 #define linker_var_t extern struct not_defined
 

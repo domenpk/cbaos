@@ -1,7 +1,10 @@
 Import('env', 'config')
 
 cfl = '-ffunction-sections -fno-builtin'
+ldf = '-Xlinker --gc-sections -Xlinker -M -Xlinker -Map='+config.NAME+'.map'
+
 env.Append(CFLAGS = cfl.split())
+env.Append(LINKFLAGS = ldf.split())
 
 SRCS = 'sched.c init.c'
 

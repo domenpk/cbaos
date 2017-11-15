@@ -29,6 +29,9 @@
 #include <mach/lpc11xx_gpio.h>
 #define GPIO_LED GPIO_0_7
 #define GPIO_LED2 GPIO_0_1
+#elif defined ARCH_UNIX
+#define GPIO_LED 0
+#define GPIO_LED2 1
 #else
 #warning "no board defined"
 #endif
@@ -66,7 +69,7 @@ static void blinky_nosched(void)
 		} else
 		if (i == 6) {
 			const char s[] = "fwrite\r\n";
-			fwrite(stdout, s, sizeof(s));
+			fwrite(s, 1, sizeof(s), stdout);
 		} else
 		if (i == 7) {
 			printf("%s, printf test; build: \"%s\"\n", __func__, VERSION);
@@ -91,7 +94,7 @@ static void blinky_nosched(void)
 static u32 blinky_stack[STACK];
 static struct task blinky_task;
 
-void blinky()
+static void blinky()
 {
 	blinky_task = (struct task) {
 		.name = "blinky",

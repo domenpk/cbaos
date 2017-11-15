@@ -9,6 +9,7 @@
 #include <compiler.h>
 #include <drivers/spi.h>
 #include <drivers/lpc_ssp.h>
+#include <mach/crt.h>
 
 
 static int lpc_ssp_change_device(struct spi_device *device)
@@ -51,10 +52,10 @@ static struct ssp0_irq_data {
 } ssp0_irq_data;
 
 #ifdef MACH_LPC21XX
-void __interrupt ssp0_handler()
+void ssp0_handler()
 #endif
 #ifdef MACH_LPC13XX
-void __interrupt ssp_irqhandler()
+void ssp_irqhandler()
 #endif
 {
 	struct lpc_ssp *spi = ssp0_irq_data.device->master->spi;

@@ -19,4 +19,7 @@ void debugmon_handler(void);
 void pendsv_handler(void);
 void systick_handler(void);
 
+void generic_exception_handler(void);
+void generic_exception_handler_c(u32 *oldstack, u32 *newstack, unsigned exception);
+
 #endif

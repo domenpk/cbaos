@@ -1,4 +1,5 @@
-/* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
+/* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
+#include <cbaos.h>
 #include <drivers/ds2482_1w.h>
 #include <drivers/1w.h>
 #include <drivers/i2c.h>
@@ -64,7 +65,7 @@ static int ds2482_set_read_ptr(struct w1_master *master, u8 ptr)
 	return 0;
 }
 
-static int ds2482_write_config(struct w1_master *master, u8 config)
+static int __unused ds2482_write_config(struct w1_master *master, u8 config)
 {
 	struct ds2482_data *chip = master->priv;
 	u8 c[2];
@@ -101,7 +102,7 @@ static int ds2482_1w_reset(struct w1_master *master)
 }
 
 // bit == 1 also means read time slot
-static int ds2482_1w_single_bit(struct w1_master *master, int bit)
+static int __unused ds2482_1w_single_bit(struct w1_master *master, int bit)
 {
 	struct ds2482_data *chip = master->priv;
 	u8 c[2] = { CMD_1W_BIT, bit<<7 };

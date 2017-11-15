@@ -15,4 +15,6 @@ void svc_handler(void);
 void pendsv_handler(void);
 void systick_handler(void);
 
+void __naked_asm generic_exception_handler(void);
+
 #endif

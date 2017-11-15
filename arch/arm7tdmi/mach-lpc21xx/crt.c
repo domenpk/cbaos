@@ -1,7 +1,13 @@
-/* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
+/* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #include <compiler.h>
+#include <mach/crt.h>
 
 // XXX needs to be compiled with -marm
+
+static void __naked_asm dummy_handler(void)
+{
+	asm volatile (	"b	generic_exception_handler\n\t");
+}
 
 void undefined_handler() __alias(dummy_handler);
 void swi_handler() __alias(dummy_handler);
@@ -9,11 +15,6 @@ void dabort_handler() __alias(dummy_handler);
 void pabort_handler() __alias(dummy_handler);
 void fiq_handler() __alias(dummy_handler);
 
-
-void __naked_asm dummy_handler()
-{
-	asm volatile (	"b	generic_exception_handler\n\t");
-}
 
 __attribute__ ((section(".vectors"))) void __naked_asm _vectors()
 {

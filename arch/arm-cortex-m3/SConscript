@@ -7,8 +7,6 @@ ldf = '-mcpu=cortex-m3 -mthumb -nostartfiles -Xlinker --gc-sections -Xlinker -M 
 
 #env['CPPPATH'].append(['arch/'+config.ARCH+'/mach-'+config.MACH+'/include/'])
 # disable linking with libc, if nothing else, to see what uses libc
-if ARGUMENTS.get('LIBC') == '0':
-	ldf += ' -nodefaultlibs -nostdlib'
 
 env.Append(ASFLAGS = ['-mcpu=cortex-m3'])
 env.Append(CFLAGS = cfl.split())

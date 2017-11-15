@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <ioctl.h>
+#include <fcntl.h>
 
 struct device;
 struct driver {

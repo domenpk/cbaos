@@ -13,7 +13,7 @@
 static LIST_DECLARE_INIT(udp_handler_list);
 
 
-static int udp_handle(u8 *buf, unsigned len)
+static int udp_handle(u8 *buf, size_t len)
 {
 	struct udp_packet *udp = (struct udp_packet *)buf;
 	int l = get_be16(udp->len);

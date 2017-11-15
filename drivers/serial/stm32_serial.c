@@ -1,5 +1,4 @@
 /* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
-#include <stdlib.h>
 #include <errno.h>
 
 #include <driver.h>

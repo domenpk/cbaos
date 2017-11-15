@@ -6,6 +6,8 @@
 #include <compiler.h>
 
 #include <arch/sched.h>
+#include <arch/crt.h>
+#include <mach/crt.h>
 
 
 // THIS CODE GOES TO MACH XXX this = timer code!
@@ -151,6 +153,12 @@ void arch_sched_start_timer()
 	T0TCR = 1<<0; /* out of reset, enable timer */
 
 	// note, could also use irq controller set pend interrupt
+}
+
+void arch_sched_now()
+{
+	// TODO same as above, just pend interrupt
+	arch_sched_next_interrupt(1);
 }
 
 void arch_wait_for_interrupt()

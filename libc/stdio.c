@@ -6,9 +6,8 @@
 #include <driver.h>
 #include <stdio.h>
 
-FILE *stdin, *stdout, *stderr;
 
-
+#if 0
 int fopen(FILE *fd, const char *path, int flags)
 {
 	if (fd == NULL) {
@@ -28,25 +27,27 @@ int fopen(FILE *fd, const char *path, int flags)
 	}
 	return -EINVAL;
 }
+#endif
 
 void fclose(FILE *fd)
 {
-	fd->dev->drv->close(fd->dev);
-	fd->dev = NULL;
+	fd->drv->close(fd);
+	fd = NULL;
 }
 
-int fwrite(FILE *fd, const void *buf, size_t count)
+int fwrite(const void *buf, size_t size, size_t count, FILE *fd)
 {
-	return fd->dev->drv->write(fd->dev, buf, count);
+	return fd->drv->write(fd, buf, size*count);
 }
 
+#if 0
 int fwriteall(FILE *fd, const void *buf, size_t count)
 {
 	int r;
 	int size = count;
 
 	do {
-		r = fd->dev->drv->write(fd->dev, buf, count);
+		r = fd->drv->write(fd, buf, count);
 		if (r <= 0)
 			return r;
 		count -= r;
@@ -55,27 +56,30 @@ int fwriteall(FILE *fd, const void *buf, size_t count)
 
 	return size;
 }
+#endif
 
-int fread(FILE *fd, void *buf, size_t count)
+int fread(void *buf, size_t size, size_t count, FILE *fd)
 {
-	return fd->dev->drv->read(fd->dev, buf, count);
+	return fd->drv->read(fd, buf, count);
 }
 
+#if 0
 int ioctl(FILE *fd, enum ioctl cmd, int arg)
 {
-	if (fd->dev->drv->ioctl)
-		return fd->dev->drv->ioctl(fd->dev, cmd, arg);
+	if (fd->drv->ioctl)
+		return fd->drv->ioctl(fd, cmd, arg);
 	return -ENOSYS;
 }
+#endif
 
 int fputc(int c, FILE *f)
 {
 	// TODO is this the right place? prolly not :P
 	if (c == '\n') {
 		int r = '\r';
-		fwrite(f, &r, 1);
+		fwrite(&r, 1, 1, f);
 	}
-	if (fwrite(f, &c, 1) == 1)
+	if (fwrite(&c, 1, 1, f) == 1)
 		return c;
 	return EOF;
 }
@@ -83,14 +87,14 @@ int fputc(int c, FILE *f)
 int fgetc(FILE *f)
 {
 	char c;
-	if (fread(f, &c, 1) == 1)
+	if (fread(&c, 1, 1, f) == 1)
 		return c;
 	return EOF;
 }
 
 int getchar(void)
 {
-	return fgetc(stdin);
+	return fgetc(global_fds[0]);
 }
 
 char *fgets(char *s, int size, FILE *f)
@@ -100,7 +104,7 @@ char *fgets(char *s, int size, FILE *f)
 		return NULL;
 
 	while (pos < size-1) {
-		int r = fread(f, &s[pos], 1);
+		int r = fread(&s[pos], 1, 1, f);
 
 		/* EOF */
 		if (r == 0)

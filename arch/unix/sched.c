@@ -55,6 +55,12 @@ void arch_sched_start_timer()
 	ualarm(1, 0);
 }
 
+void arch_sched_now()
+{
+	//TODO same as above, pend SIGALRM immediately
+	ualarm(1, 0);
+}
+
 void arch_wait_for_interrupt()
 {
 	sigset_t sigs;

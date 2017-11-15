@@ -1,16 +1,43 @@
-/* Author: Domen Puncer <domen@cba.si>.  License: WTFPL, see file LICENSE */
+/* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
+#include <init.h>
 #include <types.h>
 #include <board.h>
 #include <stdio.h>
 #include <magic.h>
 #include <driver.h>
 #include <device.h>
+#include <fcntl.h>
 
-static FILE _stdout;
+
+/* LIBC support */
+struct device *global_fds[MAX_FDS];
+
+ssize_t _write(int fd, const void *buf, size_t count)
+{
+	struct device *dev;
+
+	if (fd < 0 || fd >= MAX_FDS)
+		return -1;
+	dev = global_fds[fd];
+	if (dev == NULL)
+		return -1;
+	return dev->drv->write(dev, buf, count);
+}
+
+ssize_t _read(int fd, void *buf, size_t count)
+{
+	struct device *dev;
+
+	if (fd < 0 || fd >= MAX_FDS)
+		return -1;
+	dev = global_fds[fd];
+	if (dev == NULL)
+		return -1;
+	return dev->drv->read(dev, buf, count);
+}
 
 static void console_init()
 {
-	int r;
 	extern struct driver null_driver;
 	static struct device null;
 
@@ -20,14 +47,15 @@ static void console_init()
 	if (null.drv->probe(&null, 0) == 0)
 		device_register(&null);
 
-	r = fopen(&_stdout, "/dev/tty0", O_NONBLOCK);
-	if (r != 0) {
-		/* no console */
-		fopen(&_stdout, "/dev/null", O_NONBLOCK);
+	struct device *dev = device_find("tty0");
+	if (!dev) {
+		device_find("null");
 	}
-	stdin = &_stdout;
-	stdout = &_stdout;
-	stderr = &_stdout;
+	dev->drv->open(dev, O_NONBLOCK);
+
+	global_fds[0] = dev;
+	global_fds[1] = dev;
+	global_fds[2] = dev;
 }
 
 #ifndef ARCH_UNIX

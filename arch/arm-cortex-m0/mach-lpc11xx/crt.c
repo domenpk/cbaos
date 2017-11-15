@@ -1,8 +1,9 @@
 /* Author: Domen Puncer Kugler <domen@cba.si>.  License: WTFPL, see file LICENSE */
 #include <compiler.h>
 #include <arch/crt.h>
+#include <mach/crt.h>
 
-static void __naked_asm dummy_handler()
+static void __naked_asm dummy_handler(void)
 {
 	asm volatile (	"b	generic_exception_handler\n\t");
 }

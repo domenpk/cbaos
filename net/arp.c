@@ -47,7 +47,7 @@ static struct arp_entry arp_table[ARP_TABLE_LEN] = {
 	/* the rest are implicitly ip_unused */
 };
 
-int arp_table_find_by_ip(const ip_t ip)
+static int arp_table_find_by_ip(const ip_t ip)
 {
 	int i;
 	for (i=0; i<ALEN(arp_table); i++) {
@@ -57,7 +57,7 @@ int arp_table_find_by_ip(const ip_t ip)
 	return -ENOENT;
 }
 
-int arp_table_find_free_or_lru(void)
+static int arp_table_find_free_or_lru(void)
 {
 	int i;
 	u32 lru_time = arp_table[1].last_used_time;
@@ -107,7 +107,7 @@ void arp_table_put(const mac_t mac, const ip_t ip)
 static const u8 arp_req_template[7] = { 0x00, 0x01, 0x08, 0x00, 6, 4, 0x00 };
 
 
-int arp_handle(u8 *buf, unsigned len)
+static int arp_handle(u8 *buf, size_t len)
 {
 	struct arp_packet *arprx = (struct arp_packet *)buf;
 

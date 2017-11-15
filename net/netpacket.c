@@ -19,7 +19,7 @@
 #endif
 
 // will not work for odd lengths
-u16 ip_csum(u8 *src, int len)
+static u16 ip_csum(u8 *src, int len)
 {
 	unsigned csum = 0;
 	int i;
@@ -39,7 +39,7 @@ const static u8 ip_template[] = { 0x45, 0, 0,0, 0,0, 0,0, 0x20 };
  * Can fail if IP is not yet known. In this case it sends an arp request.
  * Then fails. User should resubmit the packet in a second or so.
  */
-int netpacket_prepare_ip(struct netpacket *packet, const ip_t dest, u16 payload_len)
+static int netpacket_prepare_ip(struct netpacket *packet, const ip_t dest, u16 payload_len)
 {
 	struct ip_packet *ip = &packet->ip;
 	struct ethernet_frame *ethernet = &packet->ethernet;
@@ -68,7 +68,7 @@ int netpacket_prepare_ip(struct netpacket *packet, const ip_t dest, u16 payload_
 	return 0;
 }
 
-int netpacket_prepare_udp(struct netpacket *packet, const ip_t dest, u16 sport, u16 dport, u16 payload_len)
+static int netpacket_prepare_udp(struct netpacket *packet, const ip_t dest, u16 sport, u16 dport, u16 payload_len)
 {
 	int ret;
 

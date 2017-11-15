@@ -8,6 +8,7 @@
 #include <drivers/i2c.h>
 #include <drivers/stm32_i2c.h>
 #include <mach/stm32_regs.h>
+#include <mach/crt.h>
 
 
 #define CR1_SWRST (1<<15)

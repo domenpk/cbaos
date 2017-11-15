@@ -5,6 +5,8 @@
 //#include <arch/cm3_regs.h>
 #include <arch/crt.h>
 #include <cbashell.h>
+#include <sched.h>
+#include <fcntl.h>
 
 
 static const char * const exceptions[] = {
@@ -62,15 +64,15 @@ void generic_exception_handler_c(u32 *oldstack, u32 *newstack, unsigned exceptio
 		device_register(&tty0);
 
 
-	static FILE _stdout;
-	int r = fopen(&_stdout, "/dev/tty0", O_NONBLOCK);
-	if (r != 0) {
-		/* no console */
-		fopen(&_stdout, "/dev/null", O_NONBLOCK);
+	struct device *dev = device_find("tty0");
+	if (!dev) {
+		device_find("null");
 	}
-	stdin = &_stdout;
-	stdout = &_stdout;
-	stderr = &_stdout;
+	dev->drv->open(dev, O_NONBLOCK);
+
+	global_fds[0] = dev;
+	global_fds[1] = dev;
+	global_fds[2] = dev;
 #endif
 
 	if (exception < ALEN(exceptions))

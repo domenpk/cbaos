@@ -14,6 +14,7 @@
 #include <ioctl.h>
 
 #include <drivers/lpc_serial_proper.h>
+#include <mach/crt.h>
 
 
 /* algorithm to find the best dividers for uart */

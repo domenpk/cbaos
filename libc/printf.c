@@ -74,7 +74,7 @@ static void printchar(char **str, int *len, int c)
 		/* this is an ugly hack... strings are <=INT_MAX/2, FILE* > */
 		if (*len > INT_MAX/2) {
 			FILE *f = (FILE*)str;
-			fputc(c, f);
+			_write(fileno(f), &c, 1);
 		} else {
 			*(*str)++ = c;
 		}
@@ -161,7 +161,7 @@ static unsigned scan_number(const char **format)
 	return n;
 }
 
-int __printf(char **str, int olen, const char *format, va_list va)
+static int __printf(char **str, int olen, const char *format, va_list va)
 {
 	char c;
 	int len = olen;
