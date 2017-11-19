@@ -44,7 +44,9 @@
 #define MODE 0
 #define SIZE 0
 
-//#define TESTS
+#ifndef NAME_CBAOS_ELF
+#define TESTS
+#endif
 #ifdef TESTS
 #define _write write
 #else
@@ -71,38 +73,48 @@ static int isdigit(unsigned char c)
 	return (c >= '0' && c <= '9');
 }
 
-static void printchar(char **str, int *len, int c)
+static void printNchars(char **str, int *len, const char *buf, int size)
 {
-	if (--(*len) > 0) {
-		/* this is an ugly hack... strings are <=INT_MAX/2, FILE* > */
-		if (*len > INT_MAX/2) {
-			FILE *f = (FILE*)str;
-			_write(fileno(f), &c, 1);
-		} else {
-			*(*str)++ = c;
+	/* this is an ugly hack... strings are <=INT_MAX/2, FILE* > */
+	if (*len > INT_MAX/2) {
+		FILE *f = (FILE*)str;
+		_write(fileno(f), buf, size);
+	} else {
+		int copy_size = size;
+		if (copy_size > (*len)-1)
+			copy_size = (*len)-1;
+		while (copy_size-- > 0) {
+			*(*str)++ = *buf++;
 		}
 	}
+	*len -= size;
+}
+
+static void printchar(char **str, int *len, char c)
+{
+	printNchars(str, len, &c, 1);
 }
 
 #ifndef MODE
 #define MODE 0
 #endif
 #if MODE == 0
-static void printstr(char **str, int *len, const char *s, int width, char pad, int prec, const char *sbefore)
-{
-	if (sbefore)
-		while (*sbefore && prec-- && width-- > 0)
-			printchar(str, len, *sbefore++);
 
+#define PREC_NONE INT_MAX
+
+static void printstr(char **str, int *len, const char *s, int width, char pad, int prec)
+{
 	if (width > 0 && pad != '-') {
 		int ilen = width - strlen(s);
 		while (ilen-- > 0 && width-- > 0)
 			printchar(str, len, pad);
 	}
-	while (*s && prec--) {
-		printchar(str, len, *s++);
-		width--;
-	}
+
+	int size = strlen(s);
+	if (size > prec)
+		size = prec;
+	printNchars(str, len, s, size);
+	width -= size;
 
 	if (pad == '-')
 		while (width-- > 0)
@@ -123,7 +135,7 @@ static void printint(char **str, int *len, unsigned pint x, int base, char hexle
 		*--out = '0';
 		if (sign == '+' || sign == ' ')
 			*--out = sign;
-		printstr(str, len, out, width, pad, -1, NULL);
+		printstr(str, len, out, width, pad, PREC_NONE);
 		return;
 	}
 	do {
@@ -149,7 +161,10 @@ static void printint(char **str, int *len, unsigned pint x, int base, char hexle
 	if (sign)
 		*--*extrachars = sign;
 
-	printstr(str, len, out, width, pad, -1, outbefore);
+	while (*outbefore && width-- > 0)
+		printchar(str, len, *outbefore++);
+
+	printstr(str, len, out, width, pad, PREC_NONE);
 }
 
 static unsigned scan_number(const char **format)
@@ -173,10 +188,15 @@ static int __printf(char **str, int olen, const char *format, va_list va)
 		int width = 0;
 		int sign = 0;
 		int pad = ' ';
-		int prec = -1;
+		int prec = PREC_NONE;
 
 		if (c != '%') {
-			printchar(str, &len, c);
+			int size = 1;
+			const char *strstart = format-1;
+			while (strstart[size] && strstart[size] != '%')
+				size++;
+			printNchars(str, &len, strstart, size);
+			format += size-1;
 			continue;
 		}
 		do {
@@ -208,11 +228,11 @@ static int __printf(char **str, int olen, const char *format, va_list va)
 			const char *s = va_arg(va, const char *);
 			if (!s)
 				s = "(null)";
-			printstr(str, &len, s, width, pad, prec, NULL);
+			printstr(str, &len, s, width, pad, prec);
 		}
 		else if (c == 'c') {
 			char c[2] = { va_arg(va, int), '\0' };
-			printstr(str, &len, c, width, pad, prec, NULL);
+			printstr(str, &len, c, width, pad, prec);
 		}
 		else {
 			pint x;
