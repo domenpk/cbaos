@@ -1,5 +1,5 @@
 /*
- * CBA printf 20151112
+ * CBA printf 20171119
  * Author: Domen Puncer Kugler <domen@cba.si>
  * License: WTFPL, see file LICENSE
  *
@@ -44,7 +44,10 @@
 #define MODE 0
 #define SIZE 0
 
-#if 1
+//#define TESTS
+#ifdef TESTS
+#define _write write
+#else
 #define _printf printf
 #define _fprintf fprintf
 #define _sprintf sprintf
@@ -404,3 +407,139 @@ int _snprintf(char *str, size_t len, const char *format, ...)
 	*str = '\0';
 	return r;
 }
+
+#ifdef TESTS
+
+#define ALEN(x) (sizeof(x)/sizeof(x[0]))
+long tests[] = { 0, -1, 1, INT_MAX, INT_MIN, UINT_MAX, SCHAR_MAX, SCHAR_MIN, UCHAR_MAX, };
+char *formats[] = {
+		"%i", "%d", "%u", "%o", "%x", "%X",
+		"%3i", "%5d", "%12u", "%1o", "%4x", "%5X",
+		"%03i", "%05d", "%012u", "%01o", "%04x", "%05X",
+		"%#05o", "%#08x", "%#09X", "%#5o", "%#8x", "%#X",
+		"%-5i", "%-8d", "%#-8x", "%-#8o", "%-1X",
+		"%+5i", "% 5i", "% i",
+		"%hi", "%hhi", "%hu", "%hhx", "%ho",
+};
+
+char *stests[] = { NULL, "a long string", "", "test" };
+char *sformats[] = { "%s", "%10s", "%.8s", "%-8s", "%.s", "%.0s", };
+long ctests[] = { 'a', ' ', '+', };
+char *cformats[] = { "%3c", "%.3c", "%-3c", "%c", };
+
+void run_tests(long *tests, int ntests, char **formats, int nformats)
+{
+	int i, j;
+	for (j=0; j<nformats; j++) {
+		printf(" test %s: .", formats[j]);
+		for (i=0; i<ntests; i++) {
+			printf(formats[j], tests[i]);
+			printf(". .");
+		}
+		printf("\n");
+
+		_printf("_test %s: .", formats[j]);
+		fflush(stdout);
+		for (i=0; i<ntests; i++) {
+			_printf(formats[j], tests[i]);
+			fflush(stdout);
+			printf(". .");
+			fflush(stdout);
+		}
+		printf("\n");
+	}
+}
+
+void run_tests_l()
+{
+	int i, j;
+	char *formats[] = { "%li", "%lu" };
+	long tests[] = { LONG_MAX, 0L, LONG_MIN, -1L, };
+	int nformats = ALEN(formats);
+	int ntests = ALEN(tests);
+
+	for (j=0; j<nformats; j++) {
+		printf(" test %s: .", formats[j]);
+		for (i=0; i<ntests; i++) {
+			printf(formats[j], tests[i]);
+			printf(". .");
+		}
+		printf("\n");
+
+		_printf("_test %s: .", formats[j]);
+		fflush(stdout);
+		for (i=0; i<ntests; i++) {
+			_printf(formats[j], tests[i]);
+			fflush(stdout);
+			printf(". .");
+			fflush(stdout);
+		}
+		printf("\n");
+	}
+}
+void run_tests_ll()
+{
+	int i, j;
+	char *formats[] = { "%lli", "%llu" };
+	long long tests[] = { LLONG_MAX, 0LL, LLONG_MIN, -1LL, };
+	int nformats = ALEN(formats);
+	int ntests = ALEN(tests);
+
+	for (j=0; j<nformats; j++) {
+		printf(" test %s: .", formats[j]);
+		for (i=0; i<ntests; i++) {
+			printf(formats[j], tests[i]);
+			printf(". .");
+		}
+		printf("\n");
+
+		_printf("_test %s: .", formats[j]);
+		fflush(stdout);
+		for (i=0; i<ntests; i++) {
+			_printf(formats[j], tests[i]);
+			fflush(stdout);
+			printf(". .");
+			fflush(stdout);
+		}
+		printf("\n");
+	}
+}
+
+void run_stests(long *tests, int ntests, char **formats, int nformats)
+{
+	char test1[64], test2[64];
+	int i, j;
+	for (j=0; j<nformats; j++) {
+		for (i=0; i<ntests; i++) {
+			const int lengths[5] = { 1, 5, 7, 15, 1024 };
+			int l;
+			for (l=0; l<5; l++) {
+				int l1, l2;
+				memset(test1, 'A', sizeof(test1));
+				memset(test2, 'A', sizeof(test2));
+				l1 = snprintf(test1, lengths[l], formats[j], tests[i]);
+				l2 = _snprintf(test2, lengths[l], formats[j], tests[i]);
+				if (l1 != l2 || strcmp(test1, test2) != 0) {
+					printf("format=\"%s\", test=%d, correct:\"%s\"[%d] != \"%s\"[%d]\n", formats[j], i, test1, l1, test2, l2);
+				}
+			}
+		}
+	}
+}
+
+int main()
+{
+	/*
+	run_tests((long*)stests, ALEN(stests), sformats, ALEN(sformats));
+	run_tests(tests, ALEN(tests), formats, ALEN(formats));
+	run_tests(ctests, ALEN(ctests), cformats, ALEN(cformats));
+	run_tests_l();
+	run_tests_ll();
+	*/
+	printf("only test failures are printed\n");
+	run_stests((long*)stests, ALEN(stests), sformats, ALEN(sformats));
+	run_stests(tests, ALEN(tests), formats, ALEN(formats));
+	run_stests(ctests, ALEN(ctests), cformats, ALEN(cformats));
+	return 0;
+}
+#endif
