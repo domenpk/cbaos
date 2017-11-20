@@ -206,10 +206,10 @@ static void sched_next_wake(int runnable, u32 now)
 		timeo = next_event;
 	}
 
-	if (timeo > now) {
+	if (timeo != now) {
+		/* we rely on wraparound, otherwise it fails in ~60s */
 		arch_sched_next_interrupt(timeo-now);
 	} else {
-		task_printall();
 		arch_sched_now();
 	}
 }
